@@ -40,7 +40,7 @@ export default async function handler(req) {
   const url    = new URL(req.url);
   const ticker = url.searchParams.get('ticker');
   const range  = url.searchParams.get('range') || '1d';
-  const mode   = url.searchParams.get('mode') || 'price'; // price | history
+  const mode   = url.searchParams.get('mode') || 'price'; // price | history | profile
 
   if (!ticker)
     return new Response(JSON.stringify({ error: 'Missing ticker' }), { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } });
@@ -48,7 +48,28 @@ export default async function handler(req) {
   try {
     let { crumb, cookie } = await ensureSession();
 
-    const interval = (mode === 'history' && (range === '1y' || range === '5y')) ? '1mo' : '1d';
+    // Profile mode: Yahoo's quoteSummary endpoint for sector/geo breakdowns.
+    if (mode === 'profile') {
+      const modules = 'assetProfile,summaryProfile,topHoldings,fundProfile,price';
+      const profileUrl = `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(ticker)}?modules=${modules}&crumb=${encodeURIComponent(crumb)}`;
+      let pRes = await fetch(profileUrl, { headers: { 'User-Agent': UA, Cookie: cookie } });
+      let pBody = await pRes.text();
+      if (pBody.includes('"Unauthorized"') || pBody.includes('"Invalid Cookie"')) {
+        session = { crumb: null, cookie: '', ts: 0 };
+        ({ crumb, cookie } = await ensureSession());
+        const retryUrl = `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(ticker)}?modules=${modules}&crumb=${encodeURIComponent(crumb)}`;
+        pRes = await fetch(retryUrl, { headers: { 'User-Agent': UA, Cookie: cookie } });
+        pBody = await pRes.text();
+      }
+      return new Response(pBody, {
+        status: pRes.ok ? 200 : 502,
+        headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' },
+      });
+    }
+
+    // Pick a sensible interval for the requested range.
+    const HISTORY_INTERVALS = { '1mo': '1d', '3mo': '1d', '6mo': '1d', '1y': '1d', '2y': '1wk', '5y': '1wk', '10y': '1mo', 'max': '1mo' };
+    const interval = mode === 'history' ? (HISTORY_INTERVALS[range] || '1d') : '1d';
     const yfRange  = mode === 'history' ? range : '1d';
     const yfUrl    = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=${interval}&range=${yfRange}&crumb=${encodeURIComponent(crumb)}`;
 

@@ -1,14 +1,37 @@
 import { useState } from 'react';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, ExternalLink } from 'lucide-react';
 import { useRealEstate } from '../../context/RealEstateContext.jsx';
 import { searchDvf } from '../../utils/dvfApi.js';
 import { formatEUR, formatNumber } from '../../utils/format.js';
 import KpiCard from '../../components/KpiCard.jsx';
+import DvfMap from '../../components/DvfMap.jsx';
+
+const YEAR_PRESETS = [
+  { id: '2024', label: '2024' },
+  { id: '2023,2024', label: '2023-24' },
+  { id: '2022,2023,2024', label: '3 dernières' },
+  { id: '2018,2019,2020,2021,2022,2023,2024', label: 'Historique complet (2018-24)' },
+];
+
+const buildListingUrl = (site, codePostal, type) => {
+  const propType = type === 'maison' ? 'maisons' : 'appartements';
+  if (site === 'seloger') {
+    return `https://www.seloger.com/list.htm?projects=2&types=${type === 'maison' ? '2' : '1'}&places=[{cp:${codePostal}}]&enterprise=0&qsVersion=1.0`;
+  }
+  if (site === 'leboncoin') {
+    return `https://www.leboncoin.fr/recherche?category=9&locations=${codePostal}&real_estate_type=${type === 'maison' ? '2' : '1'}`;
+  }
+  if (site === 'bienici') {
+    return `https://www.bienici.com/recherche/achat/${propType}/${codePostal}`;
+  }
+  return '#';
+};
 
 const MarketSearch = () => {
   const { saveSearch } = useRealEstate();
   const [codePostal, setCodePostal] = useState('');
   const [type, setType] = useState('apt');
+  const [years, setYears] = useState('2023,2024');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [analysis, setAnalysis] = useState(null);
@@ -23,9 +46,14 @@ const MarketSearch = () => {
     setError(null);
     setAnalysis(null);
     try {
-      const result = await searchDvf({ codePostal, type });
+      const result = await searchDvf({ codePostal, type, years });
       setAnalysis(result);
-      saveSearch({ codePostal, type, summary: { median: result.median, count: result.count } });
+      saveSearch({
+        codePostal,
+        type,
+        years,
+        summary: { median: result.median, count: result.count },
+      });
     } catch (err) {
       setError(err?.message || 'Erreur de récupération DVF');
     } finally {
@@ -39,14 +67,21 @@ const MarketSearch = () => {
         <div>
           <h1>Prix du marché (DVF)</h1>
           <p className="text-muted">
-            Données publiques data.gouv.fr — transactions immobilières réelles
+            Données publiques data.gouv.fr — transactions immobilières officielles 2018-2024
           </p>
         </div>
       </header>
 
       <div className="glass-panel">
         <form onSubmit={handleSearch}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 12, alignItems: 'end' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 160px 1fr auto',
+              gap: 12,
+              alignItems: 'end',
+            }}
+          >
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label>Code postal</label>
               <input
@@ -57,10 +92,20 @@ const MarketSearch = () => {
               />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
-              <label>Type de bien</label>
+              <label>Type</label>
               <select value={type} onChange={(e) => setType(e.target.value)}>
                 <option value="apt">Appartement</option>
                 <option value="maison">Maison</option>
+              </select>
+            </div>
+            <div className="input-group" style={{ marginBottom: 0 }}>
+              <label>Période</label>
+              <select value={years} onChange={(e) => setYears(e.target.value)}>
+                {YEAR_PRESETS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.label}
+                  </option>
+                ))}
               </select>
             </div>
             <button type="submit" className="btn btn-primary" disabled={loading}>
@@ -77,76 +122,149 @@ const MarketSearch = () => {
       {analysis && analysis.count === 0 && (
         <div className="glass-panel" style={{ marginTop: 20 }}>
           <p className="text-muted">
-            Aucune transaction trouvée pour ce code postal et ce type de bien.
+            Aucune transaction trouvée pour ce code postal et ce type de bien sur cette période.
           </p>
         </div>
       )}
 
       {analysis && analysis.count > 0 && (
-        <>
-          <div className="dashboard-grid">
-            <div className="col-span-3">
-              <KpiCard
-                label="Prix médian / m²"
-                value={formatEUR(analysis.median)}
-              />
-            </div>
-            <div className="col-span-3">
-              <KpiCard
-                label="10e percentile"
-                value={formatEUR(analysis.p10)}
-              />
-            </div>
-            <div className="col-span-3">
-              <KpiCard
-                label="90e percentile"
-                value={formatEUR(analysis.p90)}
-              />
-            </div>
-            <div className="col-span-3">
-              <KpiCard label="Transactions" value={formatNumber(analysis.count)} />
-            </div>
+        <div className="dashboard-grid">
+          <div className="col-span-3">
+            <KpiCard label="Prix médian / m²" value={formatEUR(analysis.median)} />
+          </div>
+          <div className="col-span-3">
+            <KpiCard label="10e percentile" value={formatEUR(analysis.p10)} />
+          </div>
+          <div className="col-span-3">
+            <KpiCard label="90e percentile" value={formatEUR(analysis.p90)} />
+          </div>
+          <div className="col-span-3">
+            <KpiCard
+              label="Transactions"
+              value={formatNumber(analysis.count)}
+              trendLabel={`Années ${analysis.years.join(', ')}`}
+              trend={0}
+            />
+          </div>
 
-            <div className="col-span-12">
-              <div className="glass-panel">
-                <h3>Transactions récentes ({analysis.codePostal})</h3>
-                <div className="table-container" style={{ marginTop: 12 }}>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Adresse</th>
-                        <th>Commune</th>
-                        <th style={{ textAlign: 'right' }}>Surface</th>
-                        <th style={{ textAlign: 'right' }}>Pièces</th>
-                        <th style={{ textAlign: 'right' }}>Prix</th>
-                        <th style={{ textAlign: 'right' }}>€ / m²</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {analysis.transactions.map((t, i) => (
-                        <tr key={`${t.date}-${i}`}>
-                          <td>{t.date}</td>
-                          <td>{t.adresse || '—'}</td>
-                          <td>{t.commune}</td>
-                          <td style={{ textAlign: 'right' }}>{formatNumber(t.surface)} m²</td>
-                          <td style={{ textAlign: 'right' }}>{t.rooms ?? '—'}</td>
-                          <td style={{ textAlign: 'right' }}>{formatEUR(t.price)}</td>
-                          <td style={{ textAlign: 'right', fontWeight: 600 }}>
-                            {formatEUR(t.pricePerSqm)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          <div className="col-span-12">
+            <div className="glass-panel">
+              <div className="flex-between" style={{ marginBottom: 12 }}>
+                <h3 style={{ margin: 0 }}>Carte des transactions</h3>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 10,
+                    fontSize: '0.78rem',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  <LegendDot color="#22c55e" label="Moins cher (Q1)" />
+                  <LegendDot color="#84cc16" label="Q2" />
+                  <LegendDot color="#f59e0b" label="Q3" />
+                  <LegendDot color="#ef4444" label="Plus cher (Q4)" />
                 </div>
+              </div>
+              <DvfMap points={analysis.mapPoints || []} center={analysis.center} />
+              {analysis.mapPoints && analysis.mapPoints.length > 0 && (
+                <p style={{ marginTop: 12, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  {analysis.mapPoints.length} points affichés sur la carte (sur{' '}
+                  {formatNumber(analysis.count)} transactions totales).
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="col-span-12">
+            <div className="glass-panel">
+              <h3>Voir les biens actuellement en vente</h3>
+              <p className="text-muted" style={{ marginTop: 4, fontSize: '0.88rem' }}>
+                Les sites d'annonces n'ont pas d'API publique. Voici des liens pré-remplis vers les
+                recherches sur tes plateformes habituelles, filtrés sur {codePostal}.
+              </p>
+              <div style={{ display: 'flex', gap: 12, marginTop: 16, flexWrap: 'wrap' }}>
+                <a
+                  href={buildListingUrl('seloger', codePostal, type)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-secondary"
+                >
+                  SeLoger <ExternalLink size={14} />
+                </a>
+                <a
+                  href={buildListingUrl('leboncoin', codePostal, type)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-secondary"
+                >
+                  LeBonCoin <ExternalLink size={14} />
+                </a>
+                <a
+                  href={buildListingUrl('bienici', codePostal, type)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-secondary"
+                >
+                  Bien'ici <ExternalLink size={14} />
+                </a>
               </div>
             </div>
           </div>
-        </>
+
+          <div className="col-span-12">
+            <div className="glass-panel">
+              <h3>Transactions récentes ({codePostal})</h3>
+              <div className="table-container" style={{ marginTop: 12 }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Adresse</th>
+                      <th>Commune</th>
+                      <th style={{ textAlign: 'right' }}>Surface</th>
+                      <th style={{ textAlign: 'right' }}>Pièces</th>
+                      <th style={{ textAlign: 'right' }}>Prix</th>
+                      <th style={{ textAlign: 'right' }}>€ / m²</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {analysis.transactions.map((t, i) => (
+                      <tr key={`${t.date}-${i}`}>
+                        <td>{t.date}</td>
+                        <td>{t.adresse || '—'}</td>
+                        <td>{t.commune}</td>
+                        <td style={{ textAlign: 'right' }}>{formatNumber(t.surface)} m²</td>
+                        <td style={{ textAlign: 'right' }}>{t.rooms ?? '—'}</td>
+                        <td style={{ textAlign: 'right' }}>{formatEUR(t.price)}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 600 }}>
+                          {formatEUR(t.pricePerSqm)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
 };
+
+const LegendDot = ({ color, label }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+    <span
+      style={{
+        width: 10,
+        height: 10,
+        borderRadius: '50%',
+        background: color,
+        display: 'inline-block',
+      }}
+    />
+    {label}
+  </span>
+);
 
 export default MarketSearch;

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ArrowRight, Calculator, Compass } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { usePortfolio } from '../../context/PortfolioContext.jsx';
 import { ACCOUNT_TYPES, getAccountTypeDef } from '../../utils/accountTypes.js';
 import { formatEUR, formatPercent } from '../../utils/format.js';
@@ -56,7 +57,13 @@ const Investments = () => {
           <h1>Mes Investissements</h1>
           <p className="text-muted">Tous tes comptes et positions, par enveloppe</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <Link to="/investments/fees" className="btn btn-secondary">
+            <Calculator size={16} /> Comparer les frais
+          </Link>
+          <Link to="/investments/explorer" className="btn btn-secondary">
+            <Compass size={16} /> Explorer
+          </Link>
           <button className="btn btn-secondary" onClick={() => setAccountModalOpen(true)}>
             <Plus size={16} /> Nouveau compte
           </button>
@@ -205,17 +212,28 @@ const Investments = () => {
                               {formatEUR(pnl)} ({formatPercent(pnlPct)})
                             </td>
                             <td style={{ textAlign: 'right' }}>
-                              <button
-                                className="btn btn-secondary"
-                                style={{ padding: '6px 10px' }}
-                                onClick={() => {
-                                  if (confirm(`Supprimer "${asset.name}" ?`)) {
-                                    removeAsset(asset.id);
-                                  }
-                                }}
-                              >
-                                <Trash2 size={14} />
-                              </button>
+                              <div style={{ display: 'inline-flex', gap: 4 }}>
+                                {asset.yahoo_ticker && (
+                                  <Link
+                                    to={`/investments/asset/${encodeURIComponent(asset.yahoo_ticker)}`}
+                                    className="btn btn-secondary"
+                                    style={{ padding: '6px 10px' }}
+                                  >
+                                    <ArrowRight size={14} />
+                                  </Link>
+                                )}
+                                <button
+                                  className="btn btn-secondary"
+                                  style={{ padding: '6px 10px' }}
+                                  onClick={() => {
+                                    if (confirm(`Supprimer "${asset.name}" ?`)) {
+                                      removeAsset(asset.id);
+                                    }
+                                  }}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );

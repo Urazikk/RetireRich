@@ -53,24 +53,50 @@ export const fetchQuote = async (ticker) => {
 
 export const fetchHistory = async (ticker, range = '1y') => {
   try {
-    // Try Vercel proxy first
-    if (VERCEL_PROXY) {
-      const data = await fetchFromVercel(ticker, 'history', range);
-      if (data?.chart?.result?.[0]) {
-        return parseChartResult(data.chart.result[0]);
-      }
+    const data = await fetchFromVercel(ticker, 'history', range);
+    if (data?.chart?.result?.[0]) {
+      return parseChartResult(data.chart.result[0]);
     }
-
-    // Fall back to local Yahoo proxy
-    const interval = range === '1y' || range === '5y' ? '1mo' : '1d';
-    const res  = await fetch(`/api/yahoo/v8/finance/chart/${ticker}?interval=${interval}&range=${range}`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    const result = data.chart?.result?.[0];
-    return result ? parseChartResult(result) : [];
+    return [];
   } catch (err) {
     console.error(`[history] ${ticker}:`, err);
     return [];
+  }
+};
+
+export const fetchProfile = async (ticker) => {
+  try {
+    const base = VERCEL_PROXY || '';
+    const url = `${base}/api/price?ticker=${encodeURIComponent(ticker)}&mode=profile`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const result = data?.quoteSummary?.result?.[0];
+    if (!result) return null;
+    const profile = result.summaryProfile || result.assetProfile || {};
+    const topHoldings = result.topHoldings || null;
+    const fundProfile = result.fundProfile || null;
+    const meta = result.price || {};
+    return {
+      name: meta.longName || meta.shortName || ticker,
+      currency: meta.currency || 'EUR',
+      exchange: meta.exchangeName || meta.exchange || null,
+      kind: meta.quoteType || (topHoldings ? 'ETF' : 'EQUITY'),
+      sector: profile.sector || null,
+      industry: profile.industry || null,
+      country: profile.country || null,
+      website: profile.website || null,
+      summary: profile.longBusinessSummary || null,
+      sectorWeightings: topHoldings?.sectorWeightings || null,
+      bondHoldings: topHoldings?.bondHoldings || null,
+      equityHoldings: topHoldings?.equityHoldings || null,
+      topHoldings: topHoldings?.holdings || null,
+      categoryName: fundProfile?.categoryName || null,
+      family: fundProfile?.family || null,
+    };
+  } catch (err) {
+    console.error(`[profile] ${ticker}:`, err);
+    return null;
   }
 };
 

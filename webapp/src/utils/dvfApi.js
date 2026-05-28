@@ -4,11 +4,13 @@
 
 const BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
 
-export const searchDvf = async ({ codePostal, type = 'apt' } = {}) => {
+export const searchDvf = async ({ codePostal, type = 'apt', years = '2024,2023', geo = true } = {}) => {
   if (!/^\d{5}$/.test(codePostal || '')) {
     throw new Error('Code postal invalide (5 chiffres requis)');
   }
-  const url = `${BASE}/api/dvf?code_postal=${codePostal}&type=${type}`;
+  const params = new URLSearchParams({ code_postal: codePostal, type, years });
+  if (geo) params.set('geo', '1');
+  const url = `${BASE}/api/dvf?${params.toString()}`;
   const res = await fetch(url);
   if (!res.ok) {
     let detail = '';

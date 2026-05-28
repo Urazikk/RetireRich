@@ -368,6 +368,7 @@ tr:hover td {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+.animate-spin { animation: spin 1s linear infinite; }
 
 /* ── Reveal-on-scroll (CLAUDE.md pattern) ──────────────────────── */
 .reveal {
