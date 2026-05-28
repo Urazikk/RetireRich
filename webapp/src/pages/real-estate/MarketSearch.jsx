@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 import { useRealEstate } from '../../context/RealEstateContext.jsx';
-import { searchDvf, analyseTransactions } from '../../utils/dvfApi.js';
+import { searchDvf } from '../../utils/dvfApi.js';
 import { formatEUR, formatNumber } from '../../utils/format.js';
 import KpiCard from '../../components/KpiCard.jsx';
 
@@ -23,9 +23,8 @@ const MarketSearch = () => {
     setError(null);
     setAnalysis(null);
     try {
-      const transactions = await searchDvf({ codePostal });
-      const result = analyseTransactions(transactions, type);
-      setAnalysis({ ...result, codePostal, type });
+      const result = await searchDvf({ codePostal, type });
+      setAnalysis(result);
       saveSearch({ codePostal, type, summary: { median: result.median, count: result.count } });
     } catch (err) {
       setError(err?.message || 'Erreur de récupération DVF');

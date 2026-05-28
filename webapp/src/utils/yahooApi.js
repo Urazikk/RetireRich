@@ -1,14 +1,15 @@
 // Prix en direct — ordre de priorité :
-// 1. Vercel proxy  (si VITE_YAHOO_PROXY_URL configuré — IP Vercel, jamais bloquée)
+// 1. Vercel proxy  (relatif /api/price quand l'app et la fonction sont co-hébergées)
+//    Override possible avec VITE_YAHOO_PROXY_URL pour pointer vers un autre déploiement.
 // 2. Twelve Data   (actions US + crypto, clé gratuite)
 // 3. Yahoo Finance local (fallback, peut être rate-limité)
 
 const VERCEL_PROXY = import.meta.env.VITE_YAHOO_PROXY_URL || '';
 
 async function fetchFromVercel(ticker, mode = 'price', range = '1d') {
-  if (!VERCEL_PROXY) return null;
+  const base = VERCEL_PROXY || '';
   try {
-    const url = `${VERCEL_PROXY}/api/price?ticker=${encodeURIComponent(ticker)}&mode=${mode}&range=${range}`;
+    const url = `${base}/api/price?ticker=${encodeURIComponent(ticker)}&mode=${mode}&range=${range}`;
     const res  = await fetch(url);
     if (!res.ok) return null;
     const data = await res.json();
