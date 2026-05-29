@@ -17,6 +17,7 @@ import RealEstate from './pages/real-estate/RealEstate.jsx';
 import Simulator from './pages/real-estate/Simulator.jsx';
 import SimulatorWizard from './pages/real-estate/SimulatorWizard.jsx';
 import ListingAnalyzer from './pages/real-estate/ListingAnalyzer.jsx';
+import MarketExplorer from './pages/real-estate/MarketExplorer.jsx';
 
 const App = () => (
   <PortfolioProvider>
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="real-estate/simulator" element={<SimulatorWizard />} />
           <Route path="real-estate/simulator-advanced" element={<Simulator />} />
           <Route path="real-estate/analyze" element={<ListingAnalyzer />} />
+          <Route path="real-estate/explorer" element={<MarketExplorer />} />
           <Route path="tax" element={<ImpotRevenu />} />
         </Route>
       </Routes>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Loader2, ExternalLink, Calculator, Trash2, Building2, Sparkles } from 'lucide-react';
+import { Search, Loader2, ExternalLink, Calculator, Trash2, Building2, Sparkles, Map as MapIcon } from 'lucide-react';
 import { useRealEstate } from '../../context/RealEstateContext.jsx';
 import { searchDvf } from '../../utils/dvfApi.js';
 import { formatEUR, formatNumber, formatPercent } from '../../utils/format.js';
@@ -86,7 +86,10 @@ const RealEstate = () => {
             Prix réels DVF, carte interactive, simulateur de rentabilité
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <Link to="/real-estate/explorer" className="btn btn-secondary">
+            <MapIcon size={16} /> Explorer le marché
+          </Link>
           <Link to="/real-estate/analyze" className="btn btn-secondary">
             <Sparkles size={16} /> Analyser une annonce
           </Link>
