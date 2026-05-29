@@ -126,7 +126,7 @@ const Expenses = () => {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Link to="/expenses/recurring" className="btn btn-secondary">
-            <Repeat size={16} /> Récurrences
+            <Repeat size={16} /> Budget
           </Link>
           <Link to="/expenses/calendar" className="btn btn-secondary">
             <CalendarRange size={16} /> Calendrier
