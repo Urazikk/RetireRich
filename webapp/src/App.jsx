@@ -15,6 +15,7 @@ import Projections from './pages/projections/Projections.jsx';
 import ImpotRevenu from './pages/tax/ImpotRevenu.jsx';
 import RealEstate from './pages/real-estate/RealEstate.jsx';
 import Simulator from './pages/real-estate/Simulator.jsx';
+import SimulatorWizard from './pages/real-estate/SimulatorWizard.jsx';
 import ListingAnalyzer from './pages/real-estate/ListingAnalyzer.jsx';
 
 const App = () => (
@@ -34,7 +35,8 @@ const App = () => (
           <Route path="projections" element={<Projections />} />
           <Route path="real-estate" element={<RealEstate />} />
           <Route path="real-estate/market" element={<RealEstate />} />
-          <Route path="real-estate/simulator" element={<Simulator />} />
+          <Route path="real-estate/simulator" element={<SimulatorWizard />} />
+          <Route path="real-estate/simulator-advanced" element={<Simulator />} />
           <Route path="real-estate/analyze" element={<ListingAnalyzer />} />
           <Route path="tax" element={<ImpotRevenu />} />
         </Route>
