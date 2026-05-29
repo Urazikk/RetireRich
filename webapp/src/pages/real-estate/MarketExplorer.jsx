@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { ArrowLeft, Loader2, TrendingUp, TrendingDown, Building2 } from 'lucide-react';
+import { ArrowLeft, Loader2, TrendingUp, TrendingDown, Building2, X as XIcon, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { DEPARTMENTS } from '../../utils/departments.js';
 import { formatEUR, formatNumber, formatPercent } from '../../utils/format.js';
 import KpiCard from '../../components/KpiCard.jsx';
@@ -81,6 +81,20 @@ const FitBounds = ({ items }) => {
   return null;
 };
 
+const DEFAULT_FILTERS = {
+  search: '',
+  priceMin: '',
+  priceMax: '',
+  popMin: '',
+  popMax: '',
+  ventesMin: '',
+  yieldMin: '',
+  yieldMax: '',
+  rentMax: '',
+  onlyWithRent: false,
+  onlyWithDvf: false,
+};
+
 const MarketExplorer = () => {
   const [dept, setDept] = useState('69');
   const [type, setType] = useState('apt');
@@ -88,8 +102,15 @@ const MarketExplorer = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const metric = METRICS.find((m) => m.id === metricId) || METRICS[0];
+
+  const setF = (key, value) => setFilters((f) => ({ ...f, [key]: value }));
+  const resetFilters = () => setFilters(DEFAULT_FILTERS);
+
+  const num = (v) => (v === '' || v == null ? null : Number(v));
 
   const fetchData = async (deptCode, typ) => {
     setLoading(true);
@@ -114,12 +135,57 @@ const MarketExplorer = () => {
     fetchData(dept, type);
   }, [dept, type]);
 
-  const sorted = useMemo(() => {
+  const filtered = useMemo(() => {
     if (!data?.items) return [];
-    return [...data.items]
+    const q = filters.search.trim().toLowerCase();
+    const priceMin = num(filters.priceMin);
+    const priceMax = num(filters.priceMax);
+    const popMin = num(filters.popMin);
+    const popMax = num(filters.popMax);
+    const ventesMin = num(filters.ventesMin);
+    const yieldMin = num(filters.yieldMin);
+    const yieldMax = num(filters.yieldMax);
+    const rentMax = num(filters.rentMax);
+
+    return data.items.filter((c) => {
+      if (q && !c.nom.toLowerCase().includes(q)) return false;
+      if (filters.onlyWithDvf && !c.salePrice) return false;
+      if (filters.onlyWithRent && !c.rentExtrapolated) return false;
+      if (priceMin != null && (c.salePrice == null || c.salePrice < priceMin)) return false;
+      if (priceMax != null && (c.salePrice == null || c.salePrice > priceMax)) return false;
+      if (popMin != null && c.population < popMin) return false;
+      if (popMax != null && c.population > popMax) return false;
+      if (ventesMin != null && (c.nbVentes || 0) < ventesMin) return false;
+      if (yieldMin != null && (c.grossYield == null || c.grossYield < yieldMin)) return false;
+      if (yieldMax != null && (c.grossYield == null || c.grossYield > yieldMax)) return false;
+      if (rentMax != null && (c.rentExtrapolated == null || c.rentExtrapolated > rentMax)) return false;
+      return true;
+    });
+  }, [data, filters]);
+
+  const sorted = useMemo(() => {
+    return [...filtered]
       .filter((c) => c[metric.field] != null)
       .sort((a, b) => (b[metric.field] || 0) - (a[metric.field] || 0));
-  }, [data, metric]);
+  }, [filtered, metric]);
+
+  const activeFilterChips = useMemo(() => {
+    const chips = [];
+    if (filters.search) chips.push({ key: 'search', label: `Nom : "${filters.search}"` });
+    if (filters.priceMin) chips.push({ key: 'priceMin', label: `Prix ≥ ${filters.priceMin} €/m²` });
+    if (filters.priceMax) chips.push({ key: 'priceMax', label: `Prix ≤ ${filters.priceMax} €/m²` });
+    if (filters.popMin) chips.push({ key: 'popMin', label: `Pop ≥ ${filters.popMin}` });
+    if (filters.popMax) chips.push({ key: 'popMax', label: `Pop ≤ ${filters.popMax}` });
+    if (filters.ventesMin) chips.push({ key: 'ventesMin', label: `Ventes ≥ ${filters.ventesMin}` });
+    if (filters.yieldMin) chips.push({ key: 'yieldMin', label: `Rendement ≥ ${filters.yieldMin} %` });
+    if (filters.yieldMax) chips.push({ key: 'yieldMax', label: `Rendement ≤ ${filters.yieldMax} %` });
+    if (filters.rentMax) chips.push({ key: 'rentMax', label: `Loyer ≤ ${filters.rentMax} €/m²` });
+    if (filters.onlyWithDvf) chips.push({ key: 'onlyWithDvf', label: 'DVF connu' });
+    if (filters.onlyWithRent) chips.push({ key: 'onlyWithRent', label: 'Loyer connu' });
+    return chips;
+  }, [filters]);
+
+  const hasActiveFilters = activeFilterChips.length > 0;
 
   const stats = useMemo(() => {
     if (!sorted.length) return null;
@@ -161,7 +227,7 @@ const MarketExplorer = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: 12,
             alignItems: 'end',
           }}
@@ -190,7 +256,219 @@ const MarketExplorer = () => {
               ))}
             </select>
           </Field>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button
+              className={`btn ${filtersOpen ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setFiltersOpen((o) => !o)}
+              style={{ flex: 1 }}
+            >
+              <SlidersHorizontal size={14} /> Filtres
+              {hasActiveFilters && (
+                <span
+                  style={{
+                    marginLeft: 4,
+                    padding: '2px 6px',
+                    background: filtersOpen ? '#fff' : 'var(--accent)',
+                    color: filtersOpen ? 'var(--text)' : '#fff',
+                    borderRadius: 10,
+                    fontSize: '0.72rem',
+                  }}
+                >
+                  {activeFilterChips.length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
+
+        {hasActiveFilters && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12, alignItems: 'center' }}>
+            {activeFilterChips.map((chip) => (
+              <span
+                key={chip.key}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '4px 10px',
+                  background: 'var(--bg-subtle)',
+                  borderRadius: 999,
+                  fontSize: '0.78rem',
+                  fontWeight: 500,
+                }}
+              >
+                {chip.label}
+                <button
+                  onClick={() =>
+                    setF(
+                      chip.key,
+                      typeof DEFAULT_FILTERS[chip.key] === 'boolean' ? false : '',
+                    )
+                  }
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    cursor: 'pointer',
+                    color: 'var(--text-muted)',
+                    display: 'flex',
+                    padding: 0,
+                  }}
+                >
+                  <XIcon size={12} />
+                </button>
+              </span>
+            ))}
+            <button
+              onClick={resetFilters}
+              style={{
+                background: 'transparent',
+                border: 0,
+                cursor: 'pointer',
+                color: 'var(--text-muted)',
+                fontSize: '0.78rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                marginLeft: 4,
+              }}
+            >
+              <RotateCcw size={11} /> Réinitialiser
+            </button>
+          </div>
+        )}
+
+        {filtersOpen && (
+          <div
+            style={{
+              marginTop: 16,
+              padding: 16,
+              background: 'var(--bg-subtle)',
+              borderRadius: 8,
+              border: '1px solid var(--border)',
+            }}
+          >
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              <Field label="Recherche commune">
+                <input
+                  value={filters.search}
+                  onChange={(e) => setF('search', e.target.value)}
+                  placeholder="Lyon, Bron..."
+                />
+              </Field>
+              <RangeField
+                label="Prix €/m²"
+                minValue={filters.priceMin}
+                maxValue={filters.priceMax}
+                onMin={(v) => setF('priceMin', v)}
+                onMax={(v) => setF('priceMax', v)}
+                placeholder={['1000', '5000']}
+              />
+              <RangeField
+                label="Population"
+                minValue={filters.popMin}
+                maxValue={filters.popMax}
+                onMin={(v) => setF('popMin', v)}
+                onMax={(v) => setF('popMax', v)}
+                placeholder={['1000', '500000']}
+              />
+              <Field label="Ventes ≥">
+                <input
+                  type="number"
+                  value={filters.ventesMin}
+                  onChange={(e) => setF('ventesMin', e.target.value)}
+                  placeholder="50"
+                />
+              </Field>
+              <RangeField
+                label="Rendement %"
+                minValue={filters.yieldMin}
+                maxValue={filters.yieldMax}
+                onMin={(v) => setF('yieldMin', v)}
+                onMax={(v) => setF('yieldMax', v)}
+                placeholder={['3', '8']}
+                step={0.1}
+              />
+              <Field label="Loyer max €/m²">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filters.rentMax}
+                  onChange={(e) => setF('rentMax', e.target.value)}
+                  placeholder="20"
+                />
+              </Field>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 8 }}>
+                <Toggle
+                  label="Uniquement avec données DVF"
+                  checked={filters.onlyWithDvf}
+                  onChange={(v) => setF('onlyWithDvf', v)}
+                />
+                <Toggle
+                  label="Uniquement avec loyer connu"
+                  checked={filters.onlyWithRent}
+                  onChange={(v) => setF('onlyWithRent', v)}
+                />
+              </div>
+            </div>
+            <div
+              style={{
+                marginTop: 12,
+                paddingTop: 12,
+                borderTop: '1px solid var(--border)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                {filtered.length} / {data?.count || 0} communes affichées
+              </span>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() =>
+                    setFilters((f) => ({
+                      ...f,
+                      yieldMin: '5',
+                      ventesMin: '30',
+                    }))
+                  }
+                  style={{ fontSize: '0.78rem', padding: '6px 10px' }}
+                >
+                  💎 Bons rendements
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() =>
+                    setFilters((f) => ({
+                      ...f,
+                      priceMax: '3000',
+                      ventesMin: '20',
+                      popMin: '5000',
+                    }))
+                  }
+                  style={{ fontSize: '0.78rem', padding: '6px 10px' }}
+                >
+                  💰 Accessible & dynamique
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() =>
+                    setFilters((f) => ({
+                      ...f,
+                      popMin: '10000',
+                      ventesMin: '100',
+                    }))
+                  }
+                  style={{ fontSize: '0.78rem', padding: '6px 10px' }}
+                >
+                  🏙 Villes moyennes+
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {error && <p style={{ color: 'var(--negative)', marginTop: 12 }}>{error}</p>}
       </div>
 
@@ -214,10 +492,10 @@ const MarketExplorer = () => {
         <div className="dashboard-grid">
           <div className="col-span-3">
             <KpiCard
-              label="Communes analysées"
-              value={formatNumber(data.count)}
+              label="Communes affichées"
+              value={`${formatNumber(filtered.length)} / ${formatNumber(data.count)}`}
               trendLabel={`Département ${dept}`}
-              trend={1}
+              trend={hasActiveFilters ? -1 : 1}
             />
           </div>
           <div className="col-span-3">
@@ -284,8 +562,8 @@ const MarketExplorer = () => {
                     attribution='&copy; OpenStreetMap'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
-                  <FitBounds items={data.items} />
-                  {data.items.map((c) => {
+                  <FitBounds items={filtered} />
+                  {filtered.map((c) => {
                     const v = c[metric.field];
                     const color = metric.color(v, data.quartiles[metricId] || {});
                     const radius = Math.min(
@@ -407,6 +685,48 @@ const Field = ({ label, children }) => (
     <label>{label}</label>
     {children}
   </div>
+);
+
+const RangeField = ({ label, minValue, maxValue, onMin, onMax, placeholder = ['', ''], step }) => (
+  <div className="input-group" style={{ marginBottom: 0 }}>
+    <label>{label}</label>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+      <input
+        type="number"
+        step={step}
+        value={minValue}
+        onChange={(e) => onMin(e.target.value)}
+        placeholder={placeholder[0]}
+      />
+      <input
+        type="number"
+        step={step}
+        value={maxValue}
+        onChange={(e) => onMax(e.target.value)}
+        placeholder={placeholder[1]}
+      />
+    </div>
+  </div>
+);
+
+const Toggle = ({ label, checked, onChange }) => (
+  <label
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      cursor: 'pointer',
+      fontSize: '0.82rem',
+    }}
+  >
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => onChange(e.target.checked)}
+      style={{ width: 16, height: 16 }}
+    />
+    {label}
+  </label>
 );
 
 export default MarketExplorer;
