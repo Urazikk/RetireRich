@@ -3,6 +3,7 @@ import { ArrowLeft, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BROKER_PRESETS, BROKER_INFO } from '../../utils/accountTypes.js';
 import { formatEUR } from '../../utils/format.js';
+import BrokerLogo from '../../components/BrokerLogo.jsx';
 
 const ENVELOPES = [
   { id: 'PEA', label: 'PEA / PEA-PME', category: 'market', defaults: { value: 50000, ordersPerYear: 12, avgOrder: 1000, monthlyContribution: 500 } },
@@ -152,9 +153,14 @@ const FeeComparator = () => {
                           {i + 1}
                         </td>
                         <td>
-                          <div style={{ fontWeight: 600 }}>{r.name}</div>
-                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                            {r.info?.tagline}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <BrokerLogo name={r.name} size={28} />
+                            <div>
+                              <div style={{ fontWeight: 600 }}>{r.name}</div>
+                              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                                {r.info?.tagline}
+                              </div>
+                            </div>
                           </div>
                         </td>
                         <td style={{ textAlign: 'right' }}>{formatEUR(r.cost.garde)}</td>

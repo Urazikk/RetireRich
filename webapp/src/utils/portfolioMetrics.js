@@ -159,7 +159,7 @@ export const computePortfolioMetrics = ({ positions, riskFree = DEFAULT_RISK_FRE
 // MSCI World benchmark Sharpe is typically 0.7-1.0 over 5-10 year windows.
 // We use 0.7 as the "well-diversified" threshold.
 export const diversificationVerdict = ({ sharpe, perPosition }) => {
-  const benchmark = 0.7;
+  const benchmark = 0.8;
   const topWeight = perPosition.length
     ? Math.max(...perPosition.map((p) => p.weight))
     : 0;
@@ -175,7 +175,7 @@ export const diversificationVerdict = ({ sharpe, perPosition }) => {
   if (sharpe < benchmark) {
     recs.push({
       priority: 'high',
-      text: `Ton Sharpe ratio ${sharpe.toFixed(2)} est sous le seuil ${benchmark} d'un ETF Monde. Le rendement par unité de risque est faible : envisage un ETF World (CW8, EWLD) comme cœur de portefeuille.`,
+      text: `Ton Sharpe ratio ${sharpe.toFixed(2)} est sous le seuil ${benchmark} d'un ETF World. Le rendement par unité de risque est faible : envisage un ETF World (CW8, EWLD) comme cœur de portefeuille.`,
     });
   }
   if (topWeight > 0.4) {

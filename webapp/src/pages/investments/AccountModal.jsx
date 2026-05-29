@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { usePortfolio } from '../../context/PortfolioContext.jsx';
-import { ACCOUNT_TYPES, BROKER_NAMES } from '../../utils/accountTypes.js';
+import { ACCOUNT_TYPES } from '../../utils/accountTypes.js';
+import BrokerPicker from '../../components/BrokerPicker.jsx';
 
 const overlayStyle = {
   position: 'fixed',
@@ -99,17 +100,11 @@ const AccountModal = ({ onClose }) => {
 
           <div className="input-group">
             <label>Courtier / Établissement</label>
-            <input
-              list="brokers"
+            <BrokerPicker
+              accountType={form.type}
               value={form.broker}
-              onChange={(e) => setForm((p) => ({ ...p, broker: e.target.value }))}
-              placeholder="Ex : Boursorama"
+              onChange={(b) => setForm((p) => ({ ...p, broker: b }))}
             />
-            <datalist id="brokers">
-              {BROKER_NAMES.map((b) => (
-                <option key={b} value={b} />
-              ))}
-            </datalist>
           </div>
 
           {isCash && (

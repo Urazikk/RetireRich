@@ -6,6 +6,7 @@ import { ACCOUNT_TYPES, getAccountTypeDef } from '../../utils/accountTypes.js';
 import { formatEUR, formatPercent } from '../../utils/format.js';
 import KpiCard from '../../components/KpiCard.jsx';
 import EnvelopeBadge from '../../components/EnvelopeBadge.jsx';
+import BrokerLogo from '../../components/BrokerLogo.jsx';
 import AccountModal from './AccountModal.jsx';
 import AssetModal from './AssetModal.jsx';
 
@@ -139,7 +140,16 @@ const Investments = () => {
                       <tr key={acc.id}>
                         <td><EnvelopeBadge type={acc.type} /></td>
                         <td>{acc.name}</td>
-                        <td>{acc.broker || '—'}</td>
+                        <td>
+                          {acc.broker ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <BrokerLogo name={acc.broker} size={22} />
+                              <span>{acc.broker}</span>
+                            </div>
+                          ) : (
+                            '—'
+                          )}
+                        </td>
                         <td style={{ textAlign: 'right' }}>{formatEUR(total)}</td>
                         <td style={{ textAlign: 'right' }}>
                           <button
