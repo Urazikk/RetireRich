@@ -113,9 +113,10 @@ export const ACCOUNT_TYPES = [
   { id: 'PER',           label: "Plan d'Épargne Retraite",        type: 'market',      color: '#8b5cf6' },
   { id: 'Assurance Vie', label: 'Assurance Vie',                  type: 'market',      color: '#ec4899' },
   { id: 'CTO',           label: 'Compte Titres Ordinaire',        type: 'market',      color: '#3b82f6' },
-  { id: 'Livret A',      label: 'Livret A',                       type: 'cash',        color: '#10b981', maxAmount: 22950 },
-  { id: 'LDDS',          label: 'LDDS',                           type: 'cash',        color: '#14b8a6', maxAmount: 12000 },
-  { id: 'LEP',           label: "Livret d'Épargne Populaire",     type: 'cash',        color: '#06b6d4', maxAmount: 10000 },
+  { id: 'Livret A',      label: 'Livret A',                       type: 'cash',        color: '#10b981', maxAmount: 22950, defaultRate: 1.5 },
+  { id: 'LDDS',          label: 'LDDS',                           type: 'cash',        color: '#14b8a6', maxAmount: 12000, defaultRate: 1.5 },
+  { id: 'LEP',           label: "Livret d'Épargne Populaire",     type: 'cash',        color: '#06b6d4', maxAmount: 10000, defaultRate: 2.7 },
+  { id: 'Livret Jeune',  label: 'Livret Jeune (12-25 ans)',       type: 'cash',        color: '#0ea5e9', maxAmount: 1600,  defaultRate: 2.5 },
   { id: 'Crypto',        label: 'Crypto-monnaies',                type: 'market',      color: '#f59e0b' },
   { id: 'Immobilier',    label: 'Immobilier',                     type: 'real_estate', color: '#f97316' },
   { id: 'Autre',         label: 'Autre',                          type: 'other',       color: '#94a3b8' },
@@ -167,7 +168,7 @@ export const ACCOUNT_TYPE_INFO = {
   'Livret A': {
     shortDesc: 'Épargne de précaution sécurisée, garantie par l\'État',
     details: [
-      { label: 'Taux', text: '2,4 % / an net (taux 2025 — révisé 2× / an par la Banque de France)' },
+      { label: 'Taux', text: '1,5 % / an net (2026 — révisé 2× / an par la Banque de France)' },
       { label: 'Plafond', text: '22 950 € de versements (hors intérêts capitalisés)' },
       { label: 'Disponibilité', text: 'Retrait immédiat et sans frais, 24h/24' },
       { label: 'Fiscalité', text: 'Intérêts totalement exonérés d\'impôt et de prélèvements sociaux' },
@@ -177,7 +178,7 @@ export const ACCOUNT_TYPE_INFO = {
   'LDDS': {
     shortDesc: 'Similaire au Livret A, finance l\'économie solidaire',
     details: [
-      { label: 'Taux', text: '2,4 % / an net (même taux que le Livret A)' },
+      { label: 'Taux', text: '1,5 % / an net (même taux que le Livret A)' },
       { label: 'Plafond', text: '12 000 € de versements' },
       { label: 'Disponibilité', text: 'Retrait immédiat et sans frais' },
       { label: 'Fiscalité', text: 'Intérêts exonérés d\'impôt et de prélèvements sociaux' },
@@ -187,11 +188,21 @@ export const ACCOUNT_TYPE_INFO = {
   'LEP': {
     shortDesc: 'Meilleur taux garanti du marché, sous conditions de ressources',
     details: [
-      { label: 'Taux', text: '3,5 % / an net (2025) — toujours supérieur au Livret A par décret' },
+      { label: 'Taux', text: '2,7 % / an net (2026) — toujours supérieur au Livret A par décret' },
       { label: 'Plafond', text: '10 000 € de versements' },
-      { label: 'Conditions', text: 'Soumis à conditions de ressources (RFR ≤ 21 393 € pour 1 part fiscale en 2025)' },
+      { label: 'Conditions', text: 'Soumis à conditions de ressources (RFR ≤ ~22 000 € pour 1 part fiscale)' },
       { label: 'Fiscalité', text: 'Intérêts exonérés d\'impôt et de prélèvements sociaux' },
       { label: 'Conseil clé', text: 'Si vous y êtes éligible : à remplir en priorité avant même le Livret A' },
+    ],
+  },
+  'Livret Jeune': {
+    shortDesc: 'Réservé aux 12-25 ans, taux ≥ Livret A',
+    details: [
+      { label: 'Taux', text: '≥ 1,5 % / an net (chaque banque fixe son taux, souvent 2-3 %)' },
+      { label: 'Plafond', text: '1 600 € de versements (hors intérêts capitalisés)' },
+      { label: 'Conditions', text: 'Réservé aux personnes de 12 à 25 ans révolus, un seul par personne' },
+      { label: 'Fiscalité', text: 'Intérêts totalement exonérés d\'impôt et de prélèvements sociaux' },
+      { label: 'Conseil clé', text: 'À remplir en priorité quand on est éligible — meilleur rendement sans risque' },
     ],
   },
   'Crypto': {

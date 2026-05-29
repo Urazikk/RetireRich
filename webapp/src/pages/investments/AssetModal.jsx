@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { usePortfolio } from '../../context/PortfolioContext.jsx';
 import { fetchQuote } from '../../utils/yahooApi.js';
+import AssetAutocomplete from '../../components/AssetAutocomplete.jsx';
 
 const overlayStyle = {
   position: 'fixed',
@@ -113,22 +114,26 @@ const AssetModal = ({ onClose }) => {
           </div>
 
           <div className="input-group">
-            <label>Nom de l'actif</label>
-            <input
+            <label>Rechercher un actif</label>
+            <AssetAutocomplete
+              accountType={accounts.find((a) => a.id === form.accountId)?.type}
               value={form.name}
-              onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-              placeholder="Ex : LVMH"
-              required
+              onSelect={({ name, yahoo_ticker }) =>
+                setForm((p) => ({ ...p, name, yahoo_ticker: yahoo_ticker || p.yahoo_ticker }))
+              }
             />
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+              Suggestions classées par enveloppe + recherche dans l'univers complet (2000+ titres).
+            </span>
           </div>
 
           <div className="input-group">
-            <label>Ticker Yahoo (optionnel)</label>
+            <label>Ticker Yahoo</label>
             <div style={{ display: 'flex', gap: 8 }}>
               <input
                 value={form.yahoo_ticker}
                 onChange={(e) => setForm((p) => ({ ...p, yahoo_ticker: e.target.value }))}
-                placeholder="Ex : MC.PA, BTC-EUR"
+                placeholder="Auto-rempli depuis la recherche"
                 style={{ flex: 1 }}
               />
               <button

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Loader2, ExternalLink, Calculator, Trash2, Building2 } from 'lucide-react';
+import { Search, Loader2, ExternalLink, Calculator, Trash2, Building2, Sparkles } from 'lucide-react';
 import { useRealEstate } from '../../context/RealEstateContext.jsx';
 import { searchDvf } from '../../utils/dvfApi.js';
 import { formatEUR, formatNumber, formatPercent } from '../../utils/format.js';
@@ -86,9 +86,14 @@ const RealEstate = () => {
             Prix réels DVF, carte interactive, simulateur de rentabilité
           </p>
         </div>
-        <Link to="/real-estate/simulator" className="btn btn-primary">
-          <Calculator size={16} /> Nouvelle simulation
-        </Link>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Link to="/real-estate/analyze" className="btn btn-secondary">
+            <Sparkles size={16} /> Analyser une annonce
+          </Link>
+          <Link to="/real-estate/simulator" className="btn btn-primary">
+            <Calculator size={16} /> Nouvelle simulation
+          </Link>
+        </div>
       </header>
 
       <div className="glass-panel">

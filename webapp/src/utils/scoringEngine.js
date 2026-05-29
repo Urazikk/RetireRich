@@ -4,7 +4,7 @@
 //
 // Each category produces a 0-100 score with structured recommendations.
 
-const CASH_TYPES = ['Livret A', 'LDDS', 'LEP', 'Livret'];
+const CASH_TYPES = ['Livret A', 'LDDS', 'LEP', 'Livret Jeune', 'Livret'];
 
 const computeAccountValue = (account, assets) => {
   const positions = assets.filter((a) => a.accountId === account.id);
@@ -74,13 +74,13 @@ const scoreEmergencyFund = ({ accounts, monthlyExpenses }) => {
   if (!hasLivretA) {
     recs.push({
       priority: 'high',
-      text: "Ouvre un Livret A : 2,4 % net, exonéré, retrait immédiat. Plafond 22 950 €.",
+      text: "Ouvre un Livret A : 1,5 % net (2026), exonéré, retrait immédiat. Plafond 22 950 €.",
     });
   }
   if (!hasLEP && !hasLDDS) {
     recs.push({
       priority: 'medium',
-      text: "Vérifie ton éligibilité au LEP (3,5 % net). Sinon, ouvre un LDDS (2,4 %, plafond 12 000 €).",
+      text: "Vérifie ton éligibilité au LEP (2,7 % net). Sinon, ouvre un LDDS (1,5 %, plafond 12 000 €).",
     });
   }
   if (cash >= idealTarget * 1.5) {
