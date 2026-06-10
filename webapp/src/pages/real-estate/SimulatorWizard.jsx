@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   LineChart,
   Line,
@@ -44,31 +44,49 @@ const STEPS = [
   { id: 'results', label: 'Résultats' },
 ];
 
+const DEFAULT_FORM = {
+  label: '', city: '', codePostal: '', type: 'apt', surface: 50, rooms: 2,
+  price: 200000, notaryFeesPct: 7.5, works: 0, downPayment: 20000,
+  loanRate: 3.5, loanYears: 20, monthlyRent: 0, monthlyRentOverride: '',
+  propertyTax: 800, insurance: 200, charges: 30, vacancyRate: 5, mgmtFees: 0,
+};
+
+// Inverse de handleSave : projet enregistré → champs du formulaire.
+const projectToForm = (p) => {
+  const pu = p.purchase || {};
+  const re = p.rental || {};
+  const price = Number(pu.price) || 0;
+  return {
+    label: p.label || '',
+    city: p.city || '',
+    codePostal: p.postalCode || '',
+    type: p.type || 'apt',
+    surface: Number(p.surface) || 0,
+    rooms: Number(p.rooms) || 0,
+    price,
+    notaryFeesPct: price > 0 ? Math.round(((Number(pu.notaryFees) || 0) / price) * 1000) / 10 : 7.5,
+    works: Number(pu.works) || 0,
+    downPayment: Number(pu.downPayment) || 0,
+    loanRate: Number(pu.financingMonthlyRate) || 0,
+    loanYears: Number(pu.loanDuration) || 20,
+    monthlyRent: Number(re.monthlyRent) || 0,
+    monthlyRentOverride: re.monthlyRent != null ? String(re.monthlyRent) : '',
+    propertyTax: Number(re.propertyTax) || 0,
+    insurance: Number(re.insurance) || 0,
+    charges: Number(re.charges) || 0,
+    vacancyRate: Number(re.vacancyRate) || 0,
+    mgmtFees: Number(re.mgmtFees) || 0,
+  };
+};
+
 const SimulatorWizard = () => {
   const navigate = useNavigate();
-  const { addProject } = useRealEstate();
+  const [searchParams] = useSearchParams();
+  const { addProject, updateProject, projects } = useRealEstate();
+  const editId = searchParams.get('edit');
+  const editProject = editId ? projects.find((p) => p.id === editId) : null;
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState({
-    label: '',
-    city: '',
-    codePostal: '',
-    type: 'apt',
-    surface: 50,
-    rooms: 2,
-    price: 200000,
-    notaryFeesPct: 7.5,
-    works: 0,
-    downPayment: 20000,
-    loanRate: 3.5,
-    loanYears: 20,
-    monthlyRent: 0,
-    monthlyRentOverride: '',
-    propertyTax: 800,
-    insurance: 200,
-    charges: 30,
-    vacancyRate: 5,
-    mgmtFees: 0,
-  });
+  const [form, setForm] = useState(() => (editProject ? projectToForm(editProject) : DEFAULT_FORM));
   const [dvf, setDvf] = useState(null);
   const [rentEstimate, setRentEstimate] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -196,7 +214,7 @@ const SimulatorWizard = () => {
       alert('Donne un nom au projet avant de sauvegarder.');
       return;
     }
-    addProject({
+    const payload = {
       label: form.label,
       city: form.city || rentEstimate?.commune || dvf?.center?.city || '',
       postalCode: form.codePostal,
@@ -219,7 +237,9 @@ const SimulatorWizard = () => {
         insurance: Number(form.insurance),
         mgmtFees: Number(form.mgmtFees),
       },
-    });
+    };
+    if (editProject) updateProject(editProject.id, payload);
+    else addProject(payload);
     navigate('/real-estate');
   };
 
@@ -243,7 +263,7 @@ const SimulatorWizard = () => {
           >
             <ArrowLeft size={14} /> Retour
           </Link>
-          <h1>Nouveau projet locatif</h1>
+          <h1>{editProject ? 'Modifier le projet' : 'Nouveau projet locatif'}</h1>
           <p className="text-muted">Wizard : on construit la simulation étape par étape</p>
         </div>
       </header>
