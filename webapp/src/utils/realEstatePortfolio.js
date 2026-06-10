@@ -28,7 +28,7 @@ export const projectMetrics = (project) => {
     propertyTax: rental.propertyTax,
     insurance: rental.insurance,
     mgmtFees: rental.mgmtFees,
-    loanPrincipal: price - downPayment,
+    loanPrincipal: Math.max(0, price + (Number(purchase.works) || 0) + (Number(purchase.notaryFees) || 0) - downPayment),
     loanRate: purchase.financingMonthlyRate,
     loanYears: purchase.loanDuration,
   });

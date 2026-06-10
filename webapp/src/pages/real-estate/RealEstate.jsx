@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Loader2, ExternalLink, Calculator, Sparkles, Map as MapIcon } from 'lucide-react';
 import { useRealEstate } from '../../context/useRealEstate.js';
@@ -86,8 +86,8 @@ const RealEstate = () => {
     runSearch(s.codePostal, s.type, s.years);
   };
 
-  const summary = portfolioSummary(projects);
-  const sortedProjects = sortProjects(projects, sortKey);
+  const summary = useMemo(() => portfolioSummary(projects), [projects]);
+  const sortedProjects = useMemo(() => sortProjects(projects, sortKey), [projects, sortKey]);
   const recentSearches = searches.slice(0, 5);
 
   return (
@@ -125,7 +125,7 @@ const RealEstate = () => {
           <div className="glass-panel" style={{ marginTop: 20 }}>
             <div className="flex-between" style={{ marginBottom: 16 }}>
               <h3 style={{ margin: 0 }}>Mes projets</h3>
-              <select value={sortKey} onChange={(e) => setSortKey(e.target.value)} style={{ padding: '8px 10px' }}>
+              <select value={sortKey} onChange={(e) => setSortKey(e.target.value)}>
                 <option value="cashflow">Tri : cash-flow</option>
                 <option value="yield">Tri : rentabilité</option>
                 <option value="recent">Tri : récent</option>
@@ -152,12 +152,12 @@ const RealEstate = () => {
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', alignSelf: 'center' }}>Récentes :</span>
             {recentSearches.map((s, i) => (
               <button
-                key={`${s.codePostal}-${i}`}
+                key={`${s.codePostal}-${s.type}-${i}`}
                 className="btn btn-secondary"
                 style={{ padding: '4px 10px', fontSize: '0.8rem' }}
                 onClick={() => replayRecent(s)}
               >
-                {s.codePostal}
+                {s.codePostal} {s.type === 'maison' ? 'Maison' : 'Apt'}
               </button>
             ))}
           </div>
