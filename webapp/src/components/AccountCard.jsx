@@ -25,6 +25,7 @@ const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
     assets.filter((a) => a.accountId === account.id && matchesSearch(a.name, search)),
     sortKey,
   );
+  const lineCount = assets.filter((a) => a.accountId === account.id).length;
   const value = accountValue(account, assets);
   const perf = accountPerformance(account, assets);
   const plafond = computePlafond(account);
@@ -99,18 +100,26 @@ const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{formatEUR(value)}</div>
             <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-              {isCash ? 'Solde' : `${positions.length} ligne${positions.length !== 1 ? 's' : ''}`}
+              {isCash ? 'Solde' : `${lineCount} ligne${lineCount !== 1 ? 's' : ''}`}
             </div>
           </div>
           <button
-            onClick={() => setEditing((v) => !v)}
+            onClick={() => {
+              if (editing) {
+                setEditing(false);
+              } else {
+                setBalance(account.balance ?? '');
+                setFees(account.fees ?? {});
+                setEditing(true);
+              }
+            }}
             title="Éditer"
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
           >
             <Settings2 size={16} />
           </button>
           <button
-            onClick={() => removeAccount(account.id)}
+            onClick={() => { if (window.confirm(`Supprimer le compte "${account.name}" ?`)) removeAccount(account.id); }}
             title="Supprimer ce compte"
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
           >
@@ -205,7 +214,7 @@ const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
                           <button
                             className="btn btn-secondary"
                             style={{ padding: '4px 8px' }}
-                            onClick={() => removeAsset(a.id)}
+                            onClick={() => { if (window.confirm(`Supprimer la position "${a.name}" ?`)) removeAsset(a.id); }}
                           >
                             <Trash2 size={13} />
                           </button>

@@ -148,7 +148,7 @@ const Investments = () => {
         </div>
       )}
 
-      {accounts.length === 0 ? (
+      {accounts.length === 0 && !addingAccount ? (
         <div className="glass-panel" style={{ textAlign: 'center', padding: 48 }}>
           <h2 style={{ marginBottom: 8 }}>Commence ton patrimoine</h2>
           <p className="text-muted" style={{ marginBottom: 20 }}>
@@ -168,7 +168,7 @@ const Investments = () => {
             <div className="col-span-3"><KpiCard label="Plus/Moins-value" value={formatEUR(totals.pnl)} trend={totals.pnlPct} trendLabel={formatPercent(totals.pnlPct)} /></div>
             <div className="col-span-3">
               <div className="glass-panel" style={{ height: '100%' }}>
-                <div className="label" style={{ marginBottom: 8 }}>Répartition</div>
+                <div className="kpi-label" style={{ marginBottom: 8 }}>Répartition</div>
                 <AllocationBar accounts={accounts} assets={assets} />
               </div>
             </div>
