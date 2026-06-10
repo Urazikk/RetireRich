@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { usePortfolio } from '../../context/PortfolioContext.jsx';
+import { usePortfolio } from '../../context/usePortfolio.js';
 import { ACCOUNT_TYPES } from '../../utils/accountTypes.js';
 import BrokerPicker from '../../components/BrokerPicker.jsx';
 

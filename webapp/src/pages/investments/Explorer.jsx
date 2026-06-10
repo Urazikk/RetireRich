@@ -45,9 +45,13 @@ const Explorer = () => {
     });
   }, [universe, query, typeFilter, peaOnly]);
 
-  useEffect(() => {
+  // Reset to first page when filters change (state adjustment during render, per React docs)
+  const filterKey = `${query}|${typeFilter}|${peaOnly}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (prevFilterKey !== filterKey) {
+    setPrevFilterKey(filterKey);
     setPage(0);
-  }, [query, typeFilter, peaOnly]);
+  }
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageRows = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);

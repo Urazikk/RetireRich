@@ -134,13 +134,10 @@ export { cashFlowAt };
 
 // ─── Investment score (0-100) ──────────────────────────────────────────
 export const computeListingScore = ({
-  askingPrice,
-  marketMedian,
   pricePerSqm,
   marketPricePerSqm,
   grossYieldEstimated,
   cashFlow,
-  cashOnCash,
 }) => {
   let score = 50;
   const breakdown = [];

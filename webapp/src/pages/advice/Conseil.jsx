@@ -6,11 +6,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { AlertCircle, CheckCircle2, Info, ChevronDown, ChevronUp } from 'lucide-react';
-import { usePortfolio } from '../../context/PortfolioContext.jsx';
+import { AlertCircle, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { usePortfolio } from '../../context/usePortfolio.js';
 import { useLocalStorageState } from '../../utils/useLocalStorageState.js';
 import { computeScore, STRATEGIES } from '../../utils/scoringEngine.js';
-import { formatPercent } from '../../utils/format.js';
 
 const scoreColor = (score) => {
   if (score >= 80) return '#22c55e';

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -7,7 +8,22 @@ import {
   TrendingUp,
   Building2,
   Receipt,
+  Loader2,
 } from 'lucide-react';
+
+const PageLoader = () => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '60vh',
+      color: 'var(--text-muted)',
+    }}
+  >
+    <Loader2 size={24} className="animate-spin" />
+  </div>
+);
 
 const Logo = () => (
   <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RetireRich">
@@ -55,7 +71,9 @@ const Layout = () => (
       </nav>
     </aside>
     <main className="main-content">
-      <Outlet />
+      <Suspense fallback={<PageLoader />}>
+        <Outlet />
+      </Suspense>
     </main>
   </div>
 );

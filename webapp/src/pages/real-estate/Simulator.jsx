@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Save } from 'lucide-react';
-import { useRealEstate } from '../../context/RealEstateContext.jsx';
+import { useRealEstate } from '../../context/useRealEstate.js';
 import {
   grossYield,
   netYield,

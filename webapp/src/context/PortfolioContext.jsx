@@ -1,7 +1,6 @@
-import { createContext, useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocalStorageState } from '../utils/useLocalStorageState.js';
-
-const PortfolioContext = createContext(null);
+import { PortfolioContext } from './portfolio-context.js';
 
 const STORAGE = {
   accounts: 'retirerich_accounts',
@@ -104,10 +103,4 @@ export const PortfolioProvider = ({ children }) => {
   );
 
   return <PortfolioContext.Provider value={value}>{children}</PortfolioContext.Provider>;
-};
-
-export const usePortfolio = () => {
-  const ctx = useContext(PortfolioContext);
-  if (!ctx) throw new Error('usePortfolio must be used within PortfolioProvider');
-  return ctx;
 };

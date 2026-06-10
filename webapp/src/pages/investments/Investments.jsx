@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Plus, Trash2, ArrowRight, Calculator, Compass } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { usePortfolio } from '../../context/PortfolioContext.jsx';
-import { ACCOUNT_TYPES, getAccountTypeDef } from '../../utils/accountTypes.js';
+import { usePortfolio } from '../../context/usePortfolio.js';
 import { formatEUR, formatPercent } from '../../utils/format.js';
 import KpiCard from '../../components/KpiCard.jsx';
 import EnvelopeBadge from '../../components/EnvelopeBadge.jsx';

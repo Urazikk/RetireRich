@@ -1,7 +1,6 @@
-import { createContext, useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocalStorageState } from '../utils/useLocalStorageState.js';
-
-const RealEstateContext = createContext(null);
+import { RealEstateContext } from './real-estate-context.js';
 
 const STORAGE = {
   projects: 'retirerich_real_estate',
@@ -48,10 +47,4 @@ export const RealEstateProvider = ({ children }) => {
   );
 
   return <RealEstateContext.Provider value={value}>{children}</RealEstateContext.Provider>;
-};
-
-export const useRealEstate = () => {
-  const ctx = useContext(RealEstateContext);
-  if (!ctx) throw new Error('useRealEstate must be used within RealEstateProvider');
-  return ctx;
 };

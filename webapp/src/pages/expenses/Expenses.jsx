@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Plus, Trash2, Upload, CalendarRange, Repeat } from 'lucide-react';
+import { Trash2, Upload, CalendarRange, Repeat } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useLocalStorageState } from '../../utils/useLocalStorageState.js';

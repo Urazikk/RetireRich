@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { ArrowLeft, Loader2, TrendingUp, TrendingDown, Building2, X as XIcon, SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Loader2, TrendingUp, TrendingDown, X as XIcon, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { DEPARTMENTS } from '../../utils/departments.js';
 import { formatEUR, formatNumber, formatPercent } from '../../utils/format.js';
 import KpiCard from '../../components/KpiCard.jsx';
@@ -55,7 +55,7 @@ const METRICS = [
     label: 'Population',
     field: 'population',
     format: (v) => formatNumber(v),
-    color: (v, q) => {
+    color: (v) => {
       if (!v) return '#94a3b8';
       if (v >= 50000) return '#3b82f6';
       if (v >= 10000) return '#06b6d4';
@@ -132,6 +132,8 @@ const MarketExplorer = () => {
   };
 
   useEffect(() => {
+    // Legit data-fetching effect: fetchData sets a loading flag before awaiting.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData(dept, type);
   }, [dept, type]);
 

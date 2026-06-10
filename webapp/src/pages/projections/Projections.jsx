@@ -10,7 +10,7 @@ import {
   Legend,
 } from 'recharts';
 import { AlertCircle, CheckCircle2, Info, Loader2 } from 'lucide-react';
-import { usePortfolio } from '../../context/PortfolioContext.jsx';
+import { usePortfolio } from '../../context/usePortfolio.js';
 import { useLocalStorageState } from '../../utils/useLocalStorageState.js';
 import { fetchHistory } from '../../utils/yahooApi.js';
 import {
@@ -45,7 +45,7 @@ const PRIORITY_META = {
 };
 
 const Projections = () => {
-  const { accounts, assets, totals } = usePortfolio();
+  const { assets, totals } = usePortfolio();
   const [profile] = useLocalStorageState('retirerich_profile', {});
   const [recurring] = useLocalStorageState('retirerich_recurring', []);
   const [horizon, setHorizon] = useState(20);
@@ -82,6 +82,8 @@ const Projections = () => {
     const tickers = [...new Set(assets.map((a) => a.yahoo_ticker).filter(Boolean))];
     const missing = tickers.filter((t) => !(t in histories));
     if (missing.length === 0) return;
+    // Legit data-fetching effect: loading flag set before the async call.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     Promise.all(
       missing.map(async (t) => [t, await fetchHistory(t, '5y').catch(() => [])]),

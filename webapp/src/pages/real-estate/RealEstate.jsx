@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Loader2, ExternalLink, Calculator, Trash2, Building2, Sparkles, Map as MapIcon } from 'lucide-react';
-import { useRealEstate } from '../../context/RealEstateContext.jsx';
+import { useRealEstate } from '../../context/useRealEstate.js';
 import { searchDvf } from '../../utils/dvfApi.js';
 import { formatEUR, formatNumber, formatPercent } from '../../utils/format.js';
 import {
@@ -34,23 +34,13 @@ const buildListingUrl = (site, codePostal, type) => {
 
 const RealEstate = () => {
   const { projects, removeProject, saveSearch, searches } = useRealEstate();
-  const [codePostal, setCodePostal] = useState('');
-  const [type, setType] = useState('apt');
-  const [years, setYears] = useState('2023,2024');
+  // Pre-fill from last search via lazy initial state (avoids a setState-in-effect)
+  const [codePostal, setCodePostal] = useState(() => searches[0]?.codePostal || '');
+  const [type, setType] = useState(() => searches[0]?.type || 'apt');
+  const [years, setYears] = useState(() => searches[0]?.years || '2023,2024');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [analysis, setAnalysis] = useState(null);
-
-  // Pre-fill from last search
-  useEffect(() => {
-    if (searches.length > 0 && !codePostal) {
-      const last = searches[0];
-      setCodePostal(last.codePostal || '');
-      if (last.type) setType(last.type);
-      if (last.years) setYears(last.years);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleSearch = async (e) => {
     e.preventDefault();

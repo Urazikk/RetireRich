@@ -4,7 +4,6 @@ import { formatEUR, formatPercent } from '../../utils/format.js';
 import {
   TAX_CATEGORIES,
   TAX_STRATEGIES,
-  estimateTMI,
   recommendStrategies,
 } from '../../utils/taxStrategies.js';
 import KpiCard from '../../components/KpiCard.jsx';

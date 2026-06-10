@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
-import { usePortfolio } from '../../context/PortfolioContext.jsx';
+import { usePortfolio } from '../../context/usePortfolio.js';
 import { fetchQuote } from '../../utils/yahooApi.js';
 import AssetAutocomplete from '../../components/AssetAutocomplete.jsx';
 

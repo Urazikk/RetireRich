@@ -9,3 +9,4 @@ gstack/
 .vercel
 .vite
 *.log
+.yahoo-cookies.txt

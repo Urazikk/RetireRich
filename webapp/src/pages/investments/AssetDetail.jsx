@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { ArrowLeft, ExternalLink, Loader2, TrendingDown, TrendingUp } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
 import { fetchHistory, fetchProfile, fetchQuote } from '../../utils/yahooApi.js';
 import { formatEUR, formatPercent } from '../../utils/format.js';
 import KpiCard from '../../components/KpiCard.jsx';

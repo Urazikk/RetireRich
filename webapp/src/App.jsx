@@ -1,23 +1,26 @@
+import { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import { PortfolioProvider } from './context/PortfolioContext.jsx';
 import { RealEstateProvider } from './context/RealEstateContext.jsx';
-import Dashboard from './pages/Dashboard.jsx';
-import Investments from './pages/investments/Investments.jsx';
-import FeeComparator from './pages/investments/FeeComparator.jsx';
-import Explorer from './pages/investments/Explorer.jsx';
-import AssetDetail from './pages/investments/AssetDetail.jsx';
-import Expenses from './pages/expenses/Expenses.jsx';
-import Recurring from './pages/expenses/Recurring.jsx';
-import CashCalendar from './pages/expenses/CashCalendar.jsx';
-import Conseil from './pages/advice/Conseil.jsx';
-import Projections from './pages/projections/Projections.jsx';
-import ImpotRevenu from './pages/tax/ImpotRevenu.jsx';
-import RealEstate from './pages/real-estate/RealEstate.jsx';
-import Simulator from './pages/real-estate/Simulator.jsx';
-import SimulatorWizard from './pages/real-estate/SimulatorWizard.jsx';
-import ListingAnalyzer from './pages/real-estate/ListingAnalyzer.jsx';
-import MarketExplorer from './pages/real-estate/MarketExplorer.jsx';
+
+// Lazy-loaded routes — splits Recharts/Leaflet out of the initial bundle
+const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
+const Investments = lazy(() => import('./pages/investments/Investments.jsx'));
+const FeeComparator = lazy(() => import('./pages/investments/FeeComparator.jsx'));
+const Explorer = lazy(() => import('./pages/investments/Explorer.jsx'));
+const AssetDetail = lazy(() => import('./pages/investments/AssetDetail.jsx'));
+const Expenses = lazy(() => import('./pages/expenses/Expenses.jsx'));
+const Recurring = lazy(() => import('./pages/expenses/Recurring.jsx'));
+const CashCalendar = lazy(() => import('./pages/expenses/CashCalendar.jsx'));
+const Conseil = lazy(() => import('./pages/advice/Conseil.jsx'));
+const Projections = lazy(() => import('./pages/projections/Projections.jsx'));
+const ImpotRevenu = lazy(() => import('./pages/tax/ImpotRevenu.jsx'));
+const RealEstate = lazy(() => import('./pages/real-estate/RealEstate.jsx'));
+const Simulator = lazy(() => import('./pages/real-estate/Simulator.jsx'));
+const SimulatorWizard = lazy(() => import('./pages/real-estate/SimulatorWizard.jsx'));
+const ListingAnalyzer = lazy(() => import('./pages/real-estate/ListingAnalyzer.jsx'));
+const MarketExplorer = lazy(() => import('./pages/real-estate/MarketExplorer.jsx'));
 
 const App = () => (
   <PortfolioProvider>

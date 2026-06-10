@@ -214,7 +214,7 @@ const scoreDiversification = ({ accounts, assets, totalPatrimoine }) => {
 // ─── Category 4: Régularité (DCA) ──────────────────────────────────────
 const scoreDCA = ({ monthlyContribution, monthlyIncome }) => {
   const recs = [];
-  let score = 0;
+  let score;
 
   if (!monthlyIncome) {
     if (monthlyContribution > 0) score = 60;
@@ -318,7 +318,7 @@ const scoreFees = ({ accounts }) => {
 };
 
 // ─── Category 6: Allocation par âge ────────────────────────────────────
-const scoreAllocation = ({ age, accounts, assets, totalPatrimoine }) => {
+const scoreAllocation = ({ age, accounts, totalPatrimoine }) => {
   if (!age || totalPatrimoine === 0) {
     return {
       score: 50,

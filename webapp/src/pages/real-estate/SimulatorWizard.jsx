@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   LineChart,
@@ -18,7 +18,7 @@ import {
   Save,
   Sparkles,
 } from 'lucide-react';
-import { useRealEstate } from '../../context/RealEstateContext.jsx';
+import { useRealEstate } from '../../context/useRealEstate.js';
 import { searchDvf } from '../../utils/dvfApi.js';
 import { fetchRentEstimate } from '../../utils/rentApi.js';
 import {

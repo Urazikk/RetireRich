@@ -12,8 +12,8 @@ import {
   Cell,
   Treemap,
 } from 'recharts';
-import { usePortfolio } from '../context/PortfolioContext.jsx';
-import { useRealEstate } from '../context/RealEstateContext.jsx';
+import { usePortfolio } from '../context/usePortfolio.js';
+import { useRealEstate } from '../context/useRealEstate.js';
 import { getAccountTypeDef } from '../utils/accountTypes.js';
 import { REGIONS, getAssetRegion } from '../utils/assetGeoMapping.js';
 import { formatEUR, formatPercent } from '../utils/format.js';
