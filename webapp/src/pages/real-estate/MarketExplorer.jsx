@@ -5,6 +5,10 @@ import 'leaflet/dist/leaflet.css';
 import { ArrowLeft, Loader2, TrendingUp, TrendingDown, X as XIcon, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { DEPARTMENTS } from '../../utils/departments.js';
 import { formatEUR, formatNumber, formatPercent } from '../../utils/format.js';
+
+// Base API (cohérent avec dvfApi/rentApi) : vide en dev (middleware Vite local)
+// ou en prod (même origine Vercel), un déploiement absolu si VITE_API_BASE est défini.
+const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
 import KpiCard from '../../components/KpiCard.jsx';
 
 const METRICS = [
@@ -117,7 +121,7 @@ const MarketExplorer = () => {
     setError(null);
     setData(null);
     try {
-      const res = await fetch(`/api/market-stats?dept=${deptCode}&type=${typ}`);
+      const res = await fetch(`${API_BASE}/api/market-stats?dept=${deptCode}&type=${typ}`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
         throw new Error(err.error || 'Erreur');
