@@ -23,6 +23,12 @@
 
   --transition:    all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 
+  /* ── Lexique animation (spec 2026-06-11) ─────────────────────── */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur-med:  300ms;
+
   /* ── Backward-compat aliases ─────────────────────────────────── */
   /* Existing inline styles reference legacy token names. Mapping   */
   /* keeps them rendering in the new minimalist palette.            */
@@ -160,6 +166,8 @@ input::placeholder, textarea::placeholder {
   background: var(--bg-subtle);
   border-color: var(--border-hover);
 }
+.btn:active:not(:disabled) { transform: scale(0.97); box-shadow: var(--shadow-sm); }
+.btn-secondary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
 /* ── App Layout ────────────────────────────────────────────────── */
 .app-container {
@@ -217,6 +225,8 @@ input::placeholder, textarea::placeholder {
   border-left-color: var(--text);
   font-weight: 600;
 }
+.nav-item svg { transition: transform var(--dur-med) var(--ease-spring); flex-shrink: 0; }
+.nav-item:hover svg { transform: scale(1.12); }
 
 .main-content {
   flex: 1;
@@ -356,13 +366,91 @@ tr:hover td {
 
 /* ── Animations ────────────────────────────────────────────────── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-.delay-1 { animation-delay: 0.08s; }
-.delay-2 { animation-delay: 0.16s; }
-.delay-3 { animation-delay: 0.24s; }
+
+@keyframes slideUpIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Cascade d'apparition : enfants directs en slideUpIn décalé (pas 60 ms, plafond 8). */
+.stagger > * { opacity: 0; animation: slideUpIn 0.45s var(--ease-out-quart) forwards; }
+.stagger > *:nth-child(1) { animation-delay: 0s; }
+.stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger > *:nth-child(3) { animation-delay: 0.12s; }
+.stagger > *:nth-child(4) { animation-delay: 0.18s; }
+.stagger > *:nth-child(5) { animation-delay: 0.24s; }
+.stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger > *:nth-child(7) { animation-delay: 0.36s; }
+.stagger > *:nth-child(n + 8) { animation-delay: 0.42s; }
+
+/* Carte cliquable : élévation au survol, appui au clic. */
+.interactive {
+  cursor: pointer;
+  transition: transform var(--dur-med) var(--ease-out-quart), box-shadow var(--dur-med) var(--ease-out-quart), border-color var(--dur-med) var(--ease-out-quart);
+}
+.interactive:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--border-hover); }
+.interactive:active { transform: translateY(0) scale(0.99); }
+
+/* Skeleton de chargement. */
+.skeleton {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--bg-subtle) 25%, rgba(0, 0, 0, 0.07) 50%, var(--bg-subtle) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* Toasts. */
+.toaster {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  max-width: 380px;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  animation: popIn var(--dur-med) var(--ease-spring) forwards;
+}
+.toast.leaving { transition: opacity 0.3s ease, transform 0.3s ease; opacity: 0; transform: translateY(6px); }
+.toast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.toast-dot.ok { background: var(--accent); }
+.toast-dot.err { background: var(--negative); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .stagger > * { opacity: 1; }
+}
 
 @keyframes spin {
   from { transform: rotate(0deg); }

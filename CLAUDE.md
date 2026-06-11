@@ -79,7 +79,7 @@ box-shadow: var(--shadow-md);
 ```
 
 ### Animations
-**Au scroll uniquement** via `IntersectionObserver` :
+Via le lexique de `index.css` uniquement : variables `--ease-out-quart`/`--ease-spring`/`--dur-fast`/`--dur-med`, keyframes globaux (`slideUpIn`, `popIn`, `shimmer`), classes `.stagger` (cascade), `.interactive` (cartes cliquables), `.skeleton`, `.toast`. `prefers-reduced-motion` est respecté globalement. `.reveal` reste réservé aux animations au scroll via `IntersectionObserver` :
 ```js
 useEffect(() => {
   const observer = new IntersectionObserver(
