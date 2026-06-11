@@ -8,6 +8,7 @@ import {
   TrendingUp,
   Building2,
   Receipt,
+  Settings,
   Loader2,
 } from 'lucide-react';
 
@@ -48,6 +49,7 @@ const NAV_ITEMS = [
   { to: '/projections', label: 'Projections', icon: TrendingUp },
   { to: '/real-estate', label: 'Immobilier', icon: Building2 },
   { to: '/tax', label: 'Impôts', icon: Receipt },
+  { to: '/settings', label: 'Réglages', icon: Settings },
 ];
 
 const Layout = () => (

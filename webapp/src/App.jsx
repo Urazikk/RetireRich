@@ -1,6 +1,7 @@
 import { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
+import HistoryRecorder from './components/HistoryRecorder.jsx';
 import { PortfolioProvider } from './context/PortfolioContext.jsx';
 import { RealEstateProvider } from './context/RealEstateContext.jsx';
 
@@ -21,10 +22,12 @@ const Simulator = lazy(() => import('./pages/real-estate/Simulator.jsx'));
 const SimulatorWizard = lazy(() => import('./pages/real-estate/SimulatorWizard.jsx'));
 const ListingAnalyzer = lazy(() => import('./pages/real-estate/ListingAnalyzer.jsx'));
 const MarketExplorer = lazy(() => import('./pages/real-estate/MarketExplorer.jsx'));
+const Settings = lazy(() => import('./pages/settings/Settings.jsx'));
 
 const App = () => (
   <PortfolioProvider>
     <RealEstateProvider>
+      <HistoryRecorder />
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
@@ -44,6 +47,7 @@ const App = () => (
           <Route path="real-estate/analyze" element={<ListingAnalyzer />} />
           <Route path="real-estate/explorer" element={<MarketExplorer />} />
           <Route path="tax" element={<ImpotRevenu />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </RealEstateProvider>

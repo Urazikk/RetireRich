@@ -29,6 +29,7 @@ const Investments = () => {
   const [sortKey, setSortKey] = useState('value');
   const [refreshing, setRefreshing] = useState(false);
   const [updatedAt, setUpdatedAt] = useState(null);
+  const [failedTickers, setFailedTickers] = useState([]);
   const [addingAccount, setAddingAccount] = useState(false);
   const [accountForm, setAccountForm] = useState(emptyAccount);
 
@@ -43,12 +44,16 @@ const Investments = () => {
   const refreshPrices = async () => {
     setRefreshing(true);
     const tickers = [...new Set(assets.map((a) => a.yahoo_ticker).filter(Boolean))];
+    const failed = [];
     for (const t of tickers) {
       const price = await fetchQuote(t);
       if (price) {
         assets.filter((a) => a.yahoo_ticker === t).forEach((a) => updateAsset(a.id, { currentPrice: price }));
+      } else {
+        failed.push(t);
       }
     }
+    setFailedTickers(failed);
     setUpdatedAt(new Date());
     setRefreshing(false);
   };
@@ -95,6 +100,14 @@ const Investments = () => {
           {updatedAt && !refreshing && (
             <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
               maj {updatedAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
+          {failedTickers.length > 0 && !refreshing && (
+            <span
+              style={{ fontSize: '0.74rem', color: 'var(--negative)' }}
+              title={failedTickers.join(', ')}
+            >
+              {failedTickers.length} prix indisponible{failedTickers.length !== 1 ? 's' : ''}
             </span>
           )}
           <button className="btn btn-secondary" onClick={refreshPrices} disabled={refreshing}>

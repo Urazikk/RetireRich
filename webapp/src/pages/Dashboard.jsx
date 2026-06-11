@@ -192,26 +192,20 @@ const TreemapTooltip = ({ active, payload }) => {
 };
 
 const Dashboard = () => {
-  const { accounts, assets, totals } = usePortfolio();
+  const { accounts, assets, totals, history } = usePortfolio();
   const { projects } = useRealEstate();
 
   const pieData = useMemo(() => buildPieData(accounts, assets), [accounts, assets]);
   const treemapData = useMemo(() => buildTreemapData(accounts, assets), [accounts, assets]);
   const geoData = useMemo(() => buildGeoData(assets, totals.totalCurrent), [assets, totals.totalCurrent]);
 
-  const historyData = useMemo(() => {
-    if (!totals.patrimoine) return [];
-    const today = new Date();
-    return Array.from({ length: 12 }).map((_, i) => {
-      const date = new Date(today);
-      date.setMonth(today.getMonth() - (11 - i));
-      const progress = (i + 1) / 12;
-      return {
-        date: date.toLocaleDateString('fr-FR', { month: 'short' }),
-        value: Math.round(totals.patrimoine * (0.85 + 0.15 * progress)),
-      };
-    });
-  }, [totals.patrimoine]);
+  const historyData = useMemo(
+    () => (Array.isArray(history) ? history : []).map((h) => ({
+      date: new Date(h.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }),
+      value: h.value,
+    })),
+    [history],
+  );
 
   const realEstateValue = projects.reduce(
     (sum, p) => sum + (Number(p?.purchase?.price) || 0),
@@ -252,10 +246,12 @@ const Dashboard = () => {
 
         <div className="col-span-8">
           <div className="glass-panel">
-            <h3>Évolution du patrimoine (12 derniers mois)</h3>
-            {historyData.length === 0 ? (
+            <h3>Évolution du patrimoine</h3>
+            {historyData.length < 2 ? (
               <p className="text-muted mt-4">
-                Ajoute tes premières positions pour visualiser l'évolution.
+                {historyData.length === 0
+                  ? "Ajoute tes premières positions pour visualiser l'évolution."
+                  : "L'historique s'enregistre automatiquement à chaque visite — la courbe apparaîtra dès demain."}
               </p>
             ) : (
               <div style={{ height: 280, marginTop: 16 }}>
