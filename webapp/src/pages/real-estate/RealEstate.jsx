@@ -6,7 +6,7 @@ import { searchDvf } from '../../utils/dvfApi.js';
 import { formatEUR, formatNumber } from '../../utils/format.js';
 import { portfolioSummary, sortProjects } from '../../utils/realEstatePortfolio.js';
 import KpiCard from '../../components/KpiCard.jsx';
-import DvfMap from '../../components/DvfMap.jsx';
+import ParcelMap from '../../components/ParcelMap.jsx';
 import ToolCard from '../../components/ToolCard.jsx';
 import ProjectCard from '../../components/ProjectCard.jsx';
 
@@ -227,7 +227,7 @@ const RealEstate = () => {
                   <LegendDot color="#ef4444" label="Plus cher" />
                 </div>
               </div>
-              <DvfMap points={analysis.mapPoints || []} center={analysis.center} />
+              <ParcelMap points={analysis.mapPoints || []} center={analysis.center} type={type} />
               {analysis.mapPoints && analysis.mapPoints.length > 0 && (
                 <p style={{ marginTop: 12, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                   {analysis.mapPoints.length} points affichés sur {formatNumber(analysis.count)} transactions totales.
