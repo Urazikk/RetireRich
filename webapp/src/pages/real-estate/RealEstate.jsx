@@ -105,20 +105,20 @@ const RealEstate = () => {
           <p className="text-muted" style={{ marginBottom: 20 }}>
             Simule la rentabilité d'un bien, explore les prix réels du marché, analyse une annonce.
           </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <div className="stagger" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
             {TOOLS.map((t) => <ToolCard key={t.to} {...t} />)}
           </div>
         </div>
       ) : (
         <>
-          <div className="dashboard-grid">
+          <div className="dashboard-grid stagger">
             <div className="col-span-3"><KpiCard label="Total investi" value={formatEUR(summary.totalInvested)} /></div>
             <div className="col-span-3"><KpiCard label="Cash-flow / mois" value={formatEUR(summary.totalCashFlow)} trend={summary.totalCashFlow} /></div>
             <div className="col-span-3"><KpiCard label="Rentabilité moy." value={`${summary.avgGrossYield.toFixed(1)} %`} /></div>
             <div className="col-span-3"><KpiCard label="Projets" value={String(summary.count)} /></div>
           </div>
 
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 20 }}>
+          <div className="stagger" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 20 }}>
             {TOOLS.map((t) => <ToolCard key={t.to} {...t} />)}
           </div>
 

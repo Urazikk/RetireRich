@@ -221,7 +221,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="dashboard-grid">
+      <div className="dashboard-grid stagger">
         <div className="col-span-3">
           <KpiCard
             label="Patrimoine total"

@@ -222,9 +222,11 @@ const Investments = () => {
             {filteredAccounts.length === 0 ? (
               <p className="text-muted">Aucun compte dans cette catégorie.</p>
             ) : (
-              filteredAccounts.map((acc) => (
-                <AccountCard key={acc.id} account={acc} assets={assets} search={search} sortKey={sortKey} />
-              ))
+              <div className="stagger">
+                {filteredAccounts.map((acc) => (
+                  <AccountCard key={acc.id} account={acc} assets={assets} search={search} sortKey={sortKey} />
+                ))}
+              </div>
             )}
           </div>
         </>
