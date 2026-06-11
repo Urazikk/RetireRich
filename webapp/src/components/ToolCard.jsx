@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const ToolCard = ({ to, icon: Icon, title, description }) => (
   <Link
     to={to}
-    className="glass-panel"
+    className="glass-panel interactive"
     style={{ display: 'block', flex: 1, minWidth: 200, textDecoration: 'none', color: 'inherit' }}
   >
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>

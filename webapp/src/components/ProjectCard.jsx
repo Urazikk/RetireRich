@@ -5,7 +5,7 @@ import { formatEUR, formatPercent } from '../utils/format.js';
 const ProjectCard = ({ project, onEdit, onDelete }) => {
   const m = projectMetrics(project);
   return (
-    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="glass-panel interactive" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div className="flex-between" style={{ alignItems: 'flex-start' }}>
         <div style={{ minWidth: 0 }}>
           <div style={{ fontWeight: 600, color: 'var(--text)' }}>{project.label || 'Sans nom'}</div>

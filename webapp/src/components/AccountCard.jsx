@@ -59,7 +59,7 @@ const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
   };
 
   return (
-    <div className="glass-panel" style={{ marginBottom: 12 }}>
+    <div className="glass-panel interactive" style={{ marginBottom: 12 }}>
       {/* Header */}
       <div className="flex-between" style={{ alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
