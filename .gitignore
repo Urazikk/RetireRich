@@ -11,3 +11,4 @@ gstack/
 *.log
 .yahoo-cookies.txt
 .superpowers/
+.gstack/
