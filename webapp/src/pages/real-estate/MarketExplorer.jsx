@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-le
 import 'leaflet/dist/leaflet.css';
 import { ArrowLeft, Loader2, TrendingUp, TrendingDown, X as XIcon, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { DEPARTMENTS } from '../../utils/departments.js';
+import ParcelMap from '../../components/ParcelMap.jsx';
 import { formatEUR, formatNumber, formatPercent } from '../../utils/format.js';
 
 // Base API (cohérent avec dvfApi/rentApi) : vide en dev (middleware Vite local)
@@ -108,6 +109,31 @@ const MarketExplorer = () => {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [selectedCommune, setSelectedCommune] = useState(null);
+  const [parcelData, setParcelData] = useState(null);
+  const [parcelLoading, setParcelLoading] = useState(false);
+  const [parcelError, setParcelError] = useState(null);
+
+  const openCommune = async (c) => {
+    setSelectedCommune(c);
+    setParcelData(null);
+    setParcelError(null);
+    setParcelLoading(true);
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/dvf?insee=${c.insee}&dept=${dept}&type=${type}&years=2019,2020,2021,2022,2023,2024&geo=1`,
+      );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        throw new Error(err.error || 'Erreur');
+      }
+      setParcelData(await res.json());
+    } catch (err) {
+      setParcelError(err?.message || 'Erreur de récupération');
+    } finally {
+      setParcelLoading(false);
+    }
+  };
 
   const metric = METRICS.find((m) => m.id === metricId) || METRICS[0];
 
@@ -581,6 +607,7 @@ const MarketExplorer = () => {
                         key={c.insee}
                         center={[c.lat, c.lng]}
                         radius={radius}
+                        eventHandlers={{ click: () => openCommune(c) }}
                         pathOptions={{
                           color,
                           fillColor: color,
@@ -617,6 +644,29 @@ const MarketExplorer = () => {
                   })}
                 </MapContainer>
               </div>
+      {selectedCommune && (
+        <div className="glass-panel" style={{ marginTop: 16 }}>
+          <div className="flex-between" style={{ marginBottom: 12 }}>
+            <h3 style={{ margin: 0 }}>Ventes par parcelle — {selectedCommune.nom}</h3>
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '6px 10px' }}
+              onClick={() => setSelectedCommune(null)}
+            >
+              <XIcon size={14} /> Fermer
+            </button>
+          </div>
+          {parcelLoading && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)' }}>
+              <Loader2 size={16} className="animate-spin" /> Chargement des ventes…
+            </div>
+          )}
+          {parcelError && <p style={{ color: 'var(--negative)' }}>{parcelError}</p>}
+          {!parcelLoading && !parcelError && parcelData && (
+            <ParcelMap points={parcelData.mapPoints || []} center={parcelData.center} type={type} />
+          )}
+        </div>
+      )}
               <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 8 }}>
                 Taille du point ∝ population. Couleur ∝ métrique sélectionnée. Sources :
                 Statistiques DVF (Etalab) + Carte des Loyers 2024 (Ministère du Logement).
