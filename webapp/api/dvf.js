@@ -82,16 +82,13 @@ export default async function handler(req, res) {
   try {
     const url = new URL(req.url, `https://${req.headers.host || 'local'}`);
     const codePostal = url.searchParams.get('code_postal') || url.searchParams.get('codePostal');
+    const inseeParam = url.searchParams.get('insee');
+    const deptParam = url.searchParams.get('dept');
     const typeParam = (url.searchParams.get('type') || 'apt').toLowerCase();
     const propertyType = TYPE_MAP[typeParam];
     const yearsParam = url.searchParams.get('years') || '2024,2023';
     const includeGeo = url.searchParams.get('geo') === '1';
 
-    if (!codePostal || !/^\d{5}$/.test(codePostal)) {
-      res.writeHead(400, CORS);
-      res.end(JSON.stringify({ error: 'code_postal (5 digits) is required' }));
-      return;
-    }
     if (!propertyType) {
       res.writeHead(400, CORS);
       res.end(JSON.stringify({ error: "type must be 'apt' or 'maison'" }));
@@ -108,11 +105,22 @@ export default async function handler(req, res) {
       return;
     }
 
-    const communes = await resolveInsee(codePostal);
-    if (!communes.length) {
-      res.writeHead(404, CORS);
-      res.end(JSON.stringify({ error: `No commune found for ${codePostal}` }));
-      return;
+    // Mode commune directe (insee+dept), sinon résolution depuis le code postal.
+    let communes;
+    if (inseeParam && deptParam) {
+      communes = [{ insee: inseeParam, dept: deptParam }];
+    } else {
+      if (!codePostal || !/^\d{5}$/.test(codePostal)) {
+        res.writeHead(400, CORS);
+        res.end(JSON.stringify({ error: 'code_postal (5 digits) or insee+dept required' }));
+        return;
+      }
+      communes = await resolveInsee(codePostal);
+      if (!communes.length) {
+        res.writeHead(404, CORS);
+        res.end(JSON.stringify({ error: `No commune found for ${codePostal}` }));
+        return;
+      }
     }
 
     const allTransactions = [];
@@ -146,6 +154,7 @@ export default async function handler(req, res) {
             adresse: [r.adresse_numero, r.adresse_nom_voie].filter(Boolean).join(' '),
             commune: r.nom_commune,
             codePostal: r.code_postal,
+            idParcelle: r.id_parcelle,
             year,
             surface,
             rooms: Number(r.nombre_pieces_principales) || null,
@@ -171,7 +180,7 @@ export default async function handler(req, res) {
           p90: null,
           transactions: [],
           mapPoints: [],
-          center: communes[0] && { lat: communes[0].lat, lng: communes[0].lng },
+          center: communes[0] && communes[0].lat != null ? { lat: communes[0].lat, lng: communes[0].lng } : null,
         }),
       );
       return;
@@ -190,6 +199,7 @@ export default async function handler(req, res) {
         .map((t) => ({
           lat: t.lat,
           lng: t.lng,
+          idParcelle: t.idParcelle,
           pricePerSqm: t.pricePerSqm,
           price: t.price,
           surface: t.surface,
@@ -211,7 +221,12 @@ export default async function handler(req, res) {
         p90: Math.round(percentile(prices, 90)),
         transactions,
         mapPoints,
-        center: communes[0] && { lat: communes[0].lat, lng: communes[0].lng },
+        center:
+          communes[0] && communes[0].lat != null
+            ? { lat: communes[0].lat, lng: communes[0].lng }
+            : mapPoints[0]
+              ? { lat: mapPoints[0].lat, lng: mapPoints[0].lng }
+              : null,
       }),
     );
   } catch (err) {
