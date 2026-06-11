@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Trash2, Plus, Settings2 } from 'lucide-react';
 import { usePortfolio } from '../context/usePortfolio.js';
+import { useToast } from '../context/useToast.js';
 import { getAccountTypeDef, FEE_TYPES } from '../utils/accountTypes.js';
 import { accountValue, accountPerformance, computePlafond, sortPositions, matchesSearch } from '../utils/investmentMetrics.js';
 import { formatEUR, formatPercent } from '../utils/format.js';
@@ -12,6 +13,7 @@ const emptyAsset = { name: '', yahoo_ticker: '', quantity: '', purchasePrice: ''
 
 const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
   const { updateAccount, removeAccount, addAsset, removeAsset } = usePortfolio();
+  const toast = useToast();
   const [collapsed, setCollapsed] = useState(false);
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -48,6 +50,7 @@ const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
     });
     setAssetForm(emptyAsset);
     setAdding(false);
+    toast.success('Position ajoutée');
   };
 
   const saveEdits = () => {
@@ -119,7 +122,7 @@ const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
             <Settings2 size={16} />
           </button>
           <button
-            onClick={() => { if (window.confirm(`Supprimer le compte "${account.name}" ?`)) removeAccount(account.id); }}
+            onClick={() => { if (window.confirm(`Supprimer le compte "${account.name}" ?`)) { removeAccount(account.id); toast.success('Compte supprimé'); } }}
             title="Supprimer ce compte"
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
           >
@@ -214,7 +217,7 @@ const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
                           <button
                             className="btn btn-secondary"
                             style={{ padding: '4px 8px' }}
-                            onClick={() => { if (window.confirm(`Supprimer la position "${a.name}" ?`)) removeAsset(a.id); }}
+                            onClick={() => { if (window.confirm(`Supprimer la position "${a.name}" ?`)) { removeAsset(a.id); toast.success('Position supprimée'); } }}
                           >
                             <Trash2 size={13} />
                           </button>

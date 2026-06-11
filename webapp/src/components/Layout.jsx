@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
+import { ToastProvider } from '../context/ToastContext.jsx';
 import {
   LayoutDashboard,
   Briefcase,
@@ -53,31 +54,33 @@ const NAV_ITEMS = [
 ];
 
 const Layout = () => (
-  <div className="app-container">
-    <aside className="sidebar">
-      <div className="sidebar-logo">
-        <Logo />
-      </div>
-      <nav className="nav-links">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-          >
-            <Icon size={18} />
-            {label}
-          </NavLink>
-        ))}
-      </nav>
-    </aside>
-    <main className="main-content">
-      <Suspense fallback={<PageLoader />}>
-        <Outlet />
-      </Suspense>
-    </main>
-  </div>
+  <ToastProvider>
+    <div className="app-container">
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <Logo />
+        </div>
+        <nav className="nav-links">
+          {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <Icon size={18} />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+      <main className="main-content">
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
+      </main>
+    </div>
+  </ToastProvider>
 );
 
 export default Layout;

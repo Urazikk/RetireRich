@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Download, Upload, Database } from 'lucide-react';
 import { BACKUP_PREFIX, buildBackup, parseBackup } from '../../utils/backup.js';
+import { useToast } from '../../context/useToast.js';
 import { todayKey } from '../../utils/patrimoineHistory.js';
 
 const KEY_LABELS = {
@@ -30,6 +31,7 @@ const describeValue = (raw) => {
 
 const Settings = () => {
   const fileRef = useRef(null);
+  const toast = useToast();
   const [error, setError] = useState(null);
   const [entries, setEntries] = useState(readEntries);
 
@@ -42,6 +44,7 @@ const Settings = () => {
     a.download = `retirerich-backup-${todayKey()}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    toast.success('Sauvegarde exportée');
   };
 
   const handleImportFile = async (e) => {
@@ -58,6 +61,7 @@ const Settings = () => {
     } catch (err) {
       setError(err.message);
       setEntries(readEntries());
+      toast.error('Import échoué');
     }
   };
 

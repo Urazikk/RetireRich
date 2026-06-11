@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Calculator, Compass, RefreshCw, Search } from 'lucide-react';
 import { usePortfolio } from '../../context/usePortfolio.js';
+import { useToast } from '../../context/useToast.js';
 import { ACCOUNT_TYPES } from '../../utils/accountTypes.js';
 import { formatEUR, formatPercent } from '../../utils/format.js';
 import { fetchQuote } from '../../utils/yahooApi.js';
@@ -24,6 +25,7 @@ const emptyAccount = { type: 'PEA', name: '', broker: '', balance: '', rate: '' 
 
 const Investments = () => {
   const { accounts, assets, totals, addAccount, updateAsset } = usePortfolio();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState('ALL');
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState('value');
@@ -56,6 +58,8 @@ const Investments = () => {
     setFailedTickers(failed);
     setUpdatedAt(new Date());
     setRefreshing(false);
+    if (failed.length > 0) toast.error(`${failed.length} prix non récupéré${failed.length > 1 ? 's' : ''}`);
+    else toast.success('Prix mis à jour');
   };
 
   const submitAccount = (e) => {
@@ -73,6 +77,7 @@ const Investments = () => {
     addAccount(account);
     setAccountForm(emptyAccount);
     setAddingAccount(false);
+    toast.success('Compte ajouté');
   };
 
   const startWithType = (type) => {
