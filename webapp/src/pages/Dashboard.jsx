@@ -225,23 +225,25 @@ const Dashboard = () => {
         <div className="col-span-3">
           <KpiCard
             label="Patrimoine total"
-            value={formatEUR(totals.patrimoine + realEstateValue)}
+            value={totals.patrimoine + realEstateValue}
+            format={formatEUR}
             trend={totals.pnlPct}
           />
         </div>
         <div className="col-span-3">
           <KpiCard
             label="Investissements marché"
-            value={formatEUR(totals.totalCurrent)}
+            value={totals.totalCurrent}
+            format={formatEUR}
             trend={totals.pnlPct}
             trendLabel={`${formatPercent(totals.pnlPct)} (${formatEUR(totals.pnl)})`}
           />
         </div>
         <div className="col-span-3">
-          <KpiCard label="Épargne (livrets)" value={formatEUR(totals.cashTotal)} />
+          <KpiCard label="Épargne (livrets)" value={totals.cashTotal} format={formatEUR} />
         </div>
         <div className="col-span-3">
-          <KpiCard label="Immobilier" value={formatEUR(realEstateValue)} />
+          <KpiCard label="Immobilier" value={realEstateValue} format={formatEUR} />
         </div>
 
         <div className="col-span-8">
