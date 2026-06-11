@@ -229,7 +229,7 @@ const Investments = () => {
             ) : (
               <div className="stagger">
                 {filteredAccounts.map((acc) => (
-                  <AccountCard key={acc.id} account={acc} assets={assets} search={search} sortKey={sortKey} />
+                  <AccountCard key={acc.id} account={acc} assets={assets} search={search} sortKey={sortKey} refreshing={refreshing} />
                 ))}
               </div>
             )}

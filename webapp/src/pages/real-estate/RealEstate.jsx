@@ -7,6 +7,7 @@ import { formatEUR, formatNumber } from '../../utils/format.js';
 import { portfolioSummary, sortProjects } from '../../utils/realEstatePortfolio.js';
 import KpiCard from '../../components/KpiCard.jsx';
 import ParcelMap from '../../components/ParcelMap.jsx';
+import Skeleton from '../../components/Skeleton.jsx';
 import ToolCard from '../../components/ToolCard.jsx';
 import ProjectCard from '../../components/ProjectCard.jsx';
 
@@ -198,6 +199,19 @@ const RealEstate = () => {
           )}
         </form>
       </div>
+
+      {loading && (
+        <div className="dashboard-grid">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="col-span-3">
+              <div className="glass-panel kpi-card">
+                <Skeleton width="55%" height={11} />
+                <Skeleton width="75%" height={28} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {analysis && analysis.count === 0 && (
         <div className="glass-panel" style={{ marginTop: 20 }}>

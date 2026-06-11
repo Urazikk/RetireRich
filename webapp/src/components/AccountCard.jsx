@@ -7,11 +7,12 @@ import { accountValue, accountPerformance, computePlafond, sortPositions, matche
 import { formatEUR, formatPercent } from '../utils/format.js';
 import { fetchQuote } from '../utils/yahooApi.js';
 import BrokerLogo from './BrokerLogo.jsx';
+import Skeleton from './Skeleton.jsx';
 import AssetAutocomplete from './AssetAutocomplete.jsx';
 
 const emptyAsset = { name: '', yahoo_ticker: '', quantity: '', purchasePrice: '' };
 
-const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
+const AccountCard = ({ account, assets, search = '', sortKey = 'value', refreshing = false }) => {
   const { updateAccount, removeAccount, addAsset, removeAsset } = usePortfolio();
   const toast = useToast();
   const [collapsed, setCollapsed] = useState(false);
@@ -211,7 +212,11 @@ const AccountCard = ({ account, assets, search = '', sortKey = 'value' }) => {
                         <td>{a.name}</td>
                         <td style={{ textAlign: 'right' }}>{a.quantity}</td>
                         <td style={{ textAlign: 'right' }}>{formatEUR(a.purchasePrice)}</td>
-                        <td style={{ textAlign: 'right' }}>{formatEUR(a.currentPrice || a.purchasePrice)}</td>
+                        <td style={{ textAlign: 'right' }}>
+                          {refreshing && a.yahoo_ticker
+                            ? <Skeleton width={64} height={14} style={{ marginLeft: 'auto' }} />
+                            : formatEUR(a.currentPrice || a.purchasePrice)}
+                        </td>
                         <td style={{ textAlign: 'right', fontWeight: 600 }}>{formatEUR(v)}</td>
                         <td style={{ textAlign: 'right' }}>
                           <button

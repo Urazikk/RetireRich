@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { ArrowLeft, Loader2, TrendingUp, TrendingDown, X as XIcon, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { DEPARTMENTS } from '../../utils/departments.js';
 import ParcelMap from '../../components/ParcelMap.jsx';
+import Skeleton from '../../components/Skeleton.jsx';
 import { formatEUR, formatNumber, formatPercent } from '../../utils/format.js';
 
 // Base API (cohérent avec dvfApi/rentApi) : vide en dev (middleware Vite local)
@@ -657,8 +658,11 @@ const MarketExplorer = () => {
             </button>
           </div>
           {parcelLoading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)' }}>
-              <Loader2 size={16} className="animate-spin" /> Chargement des ventes…
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)' }}>
+                <Loader2 size={16} className="animate-spin" /> Chargement des ventes…
+              </div>
+              <Skeleton height={480} style={{ borderRadius: 'var(--radius-md)' }} />
             </div>
           )}
           {parcelError && <p style={{ color: 'var(--negative)' }}>{parcelError}</p>}
